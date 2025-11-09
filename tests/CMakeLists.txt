@@ -40,6 +40,21 @@ target_link_libraries(test_logger
 add_test(NAME LoggerTests COMMAND test_logger)
 set_tests_properties(LoggerTests PROPERTIES TIMEOUT 30)
 
+# ConfigManager 테스트
+add_executable(test_config
+    unit/test_config.cpp
+)
+
+target_link_libraries(test_config
+    PRIVATE
+        koomesh_lib
+        GTest::GTest
+        GTest::Main
+)
+
+add_test(NAME ConfigTests COMMAND test_config)
+set_tests_properties(ConfigTests PROPERTIES TIMEOUT 30)
+
 # 향후 추가될 테스트들 (현재는 주석 처리)
 # add_executable(test_mesh
 #     unit/test_mesh.cpp

@@ -92,6 +92,7 @@ set(UI_HEADERS
 # Utils module
 set(UTILS_SOURCES
     utils/Logger.cpp
+    utils/ConfigManager.cpp
     utils/BoundingBox.cpp
     utils/Timer.cpp
     utils/FileUtils.cpp
@@ -101,6 +102,7 @@ set(UTILS_SOURCES
 
 set(UTILS_HEADERS
     ${CMAKE_SOURCE_DIR}/include/utils/Logger.h
+    ${CMAKE_SOURCE_DIR}/include/utils/ConfigManager.h
     ${CMAKE_SOURCE_DIR}/include/utils/BoundingBox.h
 )
 
