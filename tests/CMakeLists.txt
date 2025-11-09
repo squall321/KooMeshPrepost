@@ -85,6 +85,21 @@ target_link_libraries(test_core
 add_test(NAME CoreTests COMMAND test_core)
 set_tests_properties(CoreTests PROPERTIES TIMEOUT 30)
 
+# MemoryPool 테스트
+add_executable(test_memory_pool
+    unit/test_memory_pool.cpp
+)
+
+target_link_libraries(test_memory_pool
+    PRIVATE
+        koomesh_lib
+        GTest::GTest
+        GTest::Main
+)
+
+add_test(NAME MemoryPoolTests COMMAND test_memory_pool)
+set_tests_properties(MemoryPoolTests PROPERTIES TIMEOUT 30)
+
 # 향후 추가될 테스트들 (현재는 주석 처리)
 # add_executable(test_mesh
 #     unit/test_mesh.cpp
