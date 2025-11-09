@@ -703,3 +703,23 @@ target_include_directories(test_actor_manager
 
 add_test(NAME ActorManagerTests COMMAND test_actor_manager)
 set_tests_properties(ActorManagerTests PROPERTIES TIMEOUT 60)
+
+# CameraController tests (Phase 59)
+add_executable(test_camera_controller
+    unit/visualization/test_camera_controller.cpp
+)
+
+target_link_libraries(test_camera_controller
+    PRIVATE
+        koomesh_lib
+        GTest::GTest
+        GTest::Main
+)
+
+target_include_directories(test_camera_controller
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_test(NAME CameraControllerTests COMMAND test_camera_controller)
+set_tests_properties(CameraControllerTests PROPERTIES TIMEOUT 60)

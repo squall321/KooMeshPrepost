@@ -105,6 +105,7 @@ set(VISUALIZATION_HEADERS
     ${CMAKE_SOURCE_DIR}/include/visualization/VTKRenderer.h
     ${CMAKE_SOURCE_DIR}/include/visualization/MeshToVTK.h
     ${CMAKE_SOURCE_DIR}/include/visualization/ActorManager.h
+    ${CMAKE_SOURCE_DIR}/include/visualization/CameraController.h
 )
 
 # Selection module
