@@ -540,6 +540,26 @@ target_include_directories(test_parallel_index_builder
 add_test(NAME ParallelIndexBuilderTests COMMAND test_parallel_index_builder)
 set_tests_properties(ParallelIndexBuilderTests PROPERTIES TIMEOUT 120)
 
+# Spatial Index Serializer 테스트 (Phase 53)
+add_executable(test_spatial_index_serializer
+    unit/core/test_spatial_index_serializer.cpp
+)
+
+target_link_libraries(test_spatial_index_serializer
+    PRIVATE
+        koomesh_lib
+        GTest::GTest
+        GTest::Main
+)
+
+target_include_directories(test_spatial_index_serializer
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_test(NAME SpatialIndexSerializerTests COMMAND test_spatial_index_serializer)
+set_tests_properties(SpatialIndexSerializerTests PROPERTIES TIMEOUT 120)
+
 # Selection Manager 테스트 (Phase 51)
 add_executable(test_selection_manager
     unit/selection/test_selection_manager.cpp

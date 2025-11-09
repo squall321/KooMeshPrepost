@@ -22,6 +22,7 @@ set(CORE_SOURCES
     core/SpatialQueryOptimizer.cpp
     core/PerformanceDocGenerator.cpp
     core/ParallelIndexBuilder.cpp
+    core/SpatialIndexSerializer.cpp
 )
 
 set(CORE_HEADERS
@@ -44,6 +45,7 @@ set(CORE_HEADERS
     ${CMAKE_SOURCE_DIR}/include/core/SpatialQueryOptimizer.h
     ${CMAKE_SOURCE_DIR}/include/core/PerformanceDocGenerator.h
     ${CMAKE_SOURCE_DIR}/include/core/ParallelIndexBuilder.h
+    ${CMAKE_SOURCE_DIR}/include/core/SpatialIndexSerializer.h
 )
 
 # I/O module
