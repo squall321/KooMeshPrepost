@@ -500,6 +500,26 @@ target_include_directories(test_spatial_index_factory
 add_test(NAME SpatialIndexFactoryTests COMMAND test_spatial_index_factory)
 set_tests_properties(SpatialIndexFactoryTests PROPERTIES TIMEOUT 120)
 
+# Spatial Query Optimizer 테스트 (Phase 48)
+add_executable(test_spatial_query_optimizer
+    unit/core/test_spatial_query_optimizer.cpp
+)
+
+target_link_libraries(test_spatial_query_optimizer
+    PRIVATE
+        koomesh_lib
+        GTest::GTest
+        GTest::Main
+)
+
+target_include_directories(test_spatial_query_optimizer
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_test(NAME SpatialQueryOptimizerTests COMMAND test_spatial_query_optimizer)
+set_tests_properties(SpatialQueryOptimizerTests PROPERTIES TIMEOUT 120)
+
 # 향후 추가될 테스트들 (현재는 주석 처리)
 # add_executable(test_mesh
 #     unit/test_mesh.cpp

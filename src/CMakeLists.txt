@@ -19,6 +19,7 @@ set(CORE_SOURCES
     core/UniformGrid.cpp
     core/SpatialIndexFactory.cpp
     core/SpatialIndexBenchmark.cpp
+    core/SpatialQueryOptimizer.cpp
 )
 
 set(CORE_HEADERS
@@ -38,6 +39,7 @@ set(CORE_HEADERS
     ${CMAKE_SOURCE_DIR}/include/core/UniformGrid.h
     ${CMAKE_SOURCE_DIR}/include/core/SpatialIndexFactory.h
     ${CMAKE_SOURCE_DIR}/include/core/SpatialIndexBenchmark.h
+    ${CMAKE_SOURCE_DIR}/include/core/SpatialQueryOptimizer.h
 )
 
 # I/O module
