@@ -1,0 +1,246 @@
+name: Code Quality
+
+on:
+  push:
+    branches: [ main, develop, claude/* ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  # clang-format 검사
+  clang-format:
+    name: Format Check
+    runs-on: ubuntu-22.04
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install clang-format
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y clang-format-15
+
+    - name: Check formatting
+      run: |
+        find src include -name "*.cpp" -o -name "*.h" | \
+        xargs clang-format-15 --dry-run --Werror
+
+    - name: Generate diff (on failure)
+      if: failure()
+      run: |
+        echo "::error::Code is not properly formatted. Run 'clang-format -i' on the following files:"
+        find src include -name "*.cpp" -o -name "*.h" | \
+        xargs clang-format-15 --dry-run -Werror 2>&1 || true
+
+  # clang-tidy 정적 분석
+  clang-tidy:
+    name: Static Analysis
+    runs-on: ubuntu-22.04
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          clang-15 \
+          clang-tidy-15 \
+          cmake \
+          ninja-build \
+          libeigen3-dev
+
+    - name: Configure CMake
+      env:
+        CC: clang-15
+        CXX: clang++-15
+      run: |
+        cmake -B build \
+          -G Ninja \
+          -DCMAKE_BUILD_TYPE=Debug \
+          -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+
+    - name: Run clang-tidy
+      run: |
+        find src -name "*.cpp" | \
+        xargs clang-tidy-15 -p build --warnings-as-errors='*'
+
+    - name: Upload compile_commands.json
+      if: failure()
+      uses: actions/upload-artifact@v3
+      with:
+        name: compile-commands
+        path: build/compile_commands.json
+
+  # cppcheck 정적 분석
+  cppcheck:
+    name: Cppcheck
+    runs-on: ubuntu-22.04
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install cppcheck
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cppcheck
+
+    - name: Run cppcheck
+      run: |
+        cppcheck \
+          --enable=all \
+          --inconclusive \
+          --std=c++17 \
+          --language=c++ \
+          --error-exitcode=1 \
+          --suppress=missingIncludeSystem \
+          --suppress=unmatchedSuppression \
+          --inline-suppr \
+          -I include \
+          src/
+
+  # Doxygen 문서 생성 검사
+  documentation:
+    name: Documentation Build
+    runs-on: ubuntu-22.04
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          cmake \
+          doxygen \
+          graphviz
+
+    - name: Configure CMake
+      run: |
+        cmake -B build \
+          -DBUILD_DOCS=ON
+
+    - name: Build documentation
+      run: cmake --build build --target docs
+
+    - name: Check for warnings
+      run: |
+        if grep -i "warning" build/docs/doxygen.log 2>/dev/null; then
+          echo "::warning::Doxygen generated warnings"
+        fi
+
+    - name: Upload documentation
+      uses: actions/upload-artifact@v3
+      with:
+        name: documentation
+        path: build/docs/api/html
+
+  # Include guard 및 헤더 검사
+  include-guards:
+    name: Include Guards Check
+    runs-on: ubuntu-22.04
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Check for #pragma once
+      run: |
+        missing_pragma=()
+        for file in $(find include -name "*.h"); do
+          if ! grep -q "#pragma once" "$file"; then
+            missing_pragma+=("$file")
+          fi
+        done
+
+        if [ ${#missing_pragma[@]} -gt 0 ]; then
+          echo "::error::The following header files are missing #pragma once:"
+          printf '%s\n' "${missing_pragma[@]}"
+          exit 1
+        fi
+
+  # Copyright 및 라이선스 헤더 검사
+  license-headers:
+    name: License Headers Check
+    runs-on: ubuntu-22.04
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Check license headers
+      run: |
+        # 모든 소스 파일에 라이선스 헤더가 있는지 확인 (향후 구현)
+        echo "License header check - placeholder"
+        # TODO: 실제 라이선스 헤더 검사 로직 구현
+
+  # TODO 및 FIXME 추적
+  todo-tracker:
+    name: TODO Tracker
+    runs-on: ubuntu-22.04
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Find TODOs
+      run: |
+        echo "## TODOs in codebase" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+
+        todos=$(grep -rn "TODO\|FIXME\|HACK\|XXX" src include || true)
+
+        if [ -n "$todos" ]; then
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "$todos" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+          count=$(echo "$todos" | wc -l)
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Found $count TODO/FIXME comments" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "No TODOs found" >> $GITHUB_STEP_SUMMARY
+        fi
+
+  # 코드 복잡도 분석
+  complexity:
+    name: Code Complexity
+    runs-on: ubuntu-22.04
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install lizard
+      run: pip install lizard
+
+    - name: Analyze complexity
+      run: |
+        lizard src include -l cpp -w -o lizard-report.txt || true
+
+        if [ -f lizard-report.txt ]; then
+          echo "## Code Complexity Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          head -n 50 lizard-report.txt >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+        fi
+
+    - name: Upload complexity report
+      uses: actions/upload-artifact@v3
+      with:
+        name: complexity-report
+        path: lizard-report.txt
+
+  # 모든 검사 성공 확인
+  quality-success:
+    name: Quality Checks Passed
+    needs: [clang-format, clang-tidy, cppcheck, documentation, include-guards, license-headers]
+    runs-on: ubuntu-latest
+    steps:
+    - name: Mark quality checks as successful
+      run: echo "All code quality checks passed!"
