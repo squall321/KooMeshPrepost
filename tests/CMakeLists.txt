@@ -783,3 +783,23 @@ target_include_directories(test_area_selector
 
 add_test(NAME AreaSelectorTests COMMAND test_area_selector)
 set_tests_properties(AreaSelectorTests PROPERTIES TIMEOUT 60)
+
+# HardwareSelector tests (Phase 63)
+add_executable(test_hardware_selector
+    visualization/test_HardwareSelector.cpp
+)
+
+target_link_libraries(test_hardware_selector
+    PRIVATE
+        koomesh_lib
+        GTest::GTest
+        GTest::Main
+)
+
+target_include_directories(test_hardware_selector
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_test(NAME HardwareSelectorTests COMMAND test_hardware_selector)
+set_tests_properties(HardwareSelectorTests PROPERTIES TIMEOUT 60)
