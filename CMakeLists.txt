@@ -49,7 +49,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     set(CMAKE_CXX_FLAGS_RELEASE "-O3 -march=native -DNDEBUG")
 
     # Debug 빌드
-    set(CMAKE_CXX_FLAGS_DEBUG "-g -O0 -DDEBUG")
+    set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")
 
     # 경고 설정
     add_compile_options(
@@ -81,7 +81,7 @@ elseif(MSVC)
     set(CMAKE_CXX_FLAGS_RELEASE "/O2 /Ob2 /DNDEBUG")
 
     # Debug 빌드
-    set(CMAKE_CXX_FLAGS_DEBUG "/Od /Zi /DDEBUG")
+    set(CMAKE_CXX_FLAGS_DEBUG "/Od /Zi")
 
     # 경고 설정
     add_compile_options(
@@ -175,8 +175,32 @@ else()
 endif()
 
 # Eigen3 (필수)
-find_package(Eigen3 3.3 REQUIRED NO_MODULE)
-message(STATUS "Found Eigen3: ${Eigen3_VERSION}")
+find_package(Eigen3 3.3 QUIET NO_MODULE)
+if(NOT Eigen3_FOUND)
+    message(STATUS "Eigen3 not found - downloading from GitLab")
+    include(FetchContent)
+    FetchContent_Declare(
+        Eigen3
+        GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
+        GIT_TAG 3.4.0
+        GIT_SHALLOW TRUE
+    )
+    set(EIGEN_BUILD_DOC OFF CACHE BOOL "" FORCE)
+    set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
+    set(EIGEN_BUILD_PKGCONFIG OFF CACHE BOOL "" FORCE)
+    FetchContent_GetProperties(Eigen3)
+    if(NOT eigen3_POPULATED)
+        FetchContent_Populate(Eigen3)
+        # Eigen is header-only, just add include directory
+        add_library(Eigen3::Eigen INTERFACE IMPORTED)
+        set_target_properties(Eigen3::Eigen PROPERTIES
+            INTERFACE_INCLUDE_DIRECTORIES "${eigen3_SOURCE_DIR}"
+        )
+        message(STATUS "Using downloaded Eigen3 from ${eigen3_SOURCE_DIR}")
+    endif()
+else()
+    message(STATUS "Found Eigen3: ${Eigen3_VERSION}")
+endif()
 
 # Intel TBB
 find_package(TBB QUIET)

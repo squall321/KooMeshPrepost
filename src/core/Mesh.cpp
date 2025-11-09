@@ -89,7 +89,7 @@ void Mesh::addElement(std::unique_ptr<Element> element) {
         }
 
         // 노드에 요소 연결 정보 추가
-        m_nodes[nodeId].addConnectedElement(id);
+        m_nodes.at(nodeId).addConnectedElement(id);
     }
 
     m_elements.emplace(id, std::move(element));

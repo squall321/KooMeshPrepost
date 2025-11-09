@@ -744,6 +744,7 @@ std::unique_ptr<Element> ElementFactory::create(
                 "Unknown or unsupported element type: " +
                 std::to_string(static_cast<int>(type))
             );
+            return nullptr;  // Never reached, but silences compiler warning
     }
 }
 

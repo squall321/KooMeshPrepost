@@ -508,19 +508,19 @@ public:
     throw exceptionType(code, message, __FILE__, __LINE__)
 
 #define KOOMESH_THROW_FILE_IO(code, message, filepath) \
-    throw FileIOException(code, message, filepath, __FILE__, __LINE__)
+    throw koomesh::utils::FileIOException(code, message, filepath, __FILE__, __LINE__)
 
 #define KOOMESH_THROW_PARSE(code, message, lineNum, colNum) \
-    throw ParseException(code, message, lineNum, colNum, __FILE__, __LINE__)
+    throw koomesh::utils::ParseException(code, message, lineNum, colNum, __FILE__, __LINE__)
 
 #define KOOMESH_THROW_INVALID_DATA(code, message, dataName) \
-    throw InvalidDataException(code, message, dataName, __FILE__, __LINE__)
+    throw koomesh::utils::InvalidDataException(code, message, dataName, __FILE__, __LINE__)
 
 #define KOOMESH_THROW_OUT_OF_MEMORY(message, size) \
-    throw OutOfMemoryException(message, size, __FILE__, __LINE__)
+    throw koomesh::utils::OutOfMemoryException(message, size, __FILE__, __LINE__)
 
 #define KOOMESH_THROW_RUNTIME(code, message) \
-    throw RuntimeException(code, message, __FILE__, __LINE__)
+    throw koomesh::utils::RuntimeException(code, message, __FILE__, __LINE__)
 
 } // namespace utils
 } // namespace koomesh

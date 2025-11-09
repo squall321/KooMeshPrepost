@@ -220,6 +220,26 @@ target_include_directories(test_mesh_analysis
 add_test(NAME MeshAnalysisTests COMMAND test_mesh_analysis)
 set_tests_properties(MeshAnalysisTests PROPERTIES TIMEOUT 30)
 
+# File I/O 인터페이스 테스트
+add_executable(test_file_io_interfaces
+    unit/io/test_file_io_interfaces.cpp
+)
+
+target_link_libraries(test_file_io_interfaces
+    PRIVATE
+        koomesh_lib
+        GTest::GTest
+        GTest::Main
+)
+
+target_include_directories(test_file_io_interfaces
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_test(NAME FileIOInterfacesTests COMMAND test_file_io_interfaces)
+set_tests_properties(FileIOInterfacesTests PROPERTIES TIMEOUT 60)
+
 # 향후 추가될 테스트들 (현재는 주석 처리)
 # add_executable(test_mesh
 #     unit/test_mesh.cpp

@@ -13,7 +13,6 @@ set(CORE_SOURCES
     core/Transform.cpp
     core/MeshValidator.cpp
     core/MeshStatistics.cpp
-    core/ConfigManager.cpp
 )
 
 set(CORE_HEADERS
@@ -30,19 +29,13 @@ set(CORE_HEADERS
 
 # I/O module
 set(IO_SOURCES
-    io/DynaFileReader.cpp
-    io/DynaFileWriter.cpp
-    io/DynaKeywordParser.cpp
-    io/FileFormatDetector.cpp
-    io/FileReaderFactory.cpp
-    io/AsyncFileLoader.cpp
-    io/MemoryMappedFile.cpp
+    io/FileIO.cpp
 )
 
 set(IO_HEADERS
+    ${CMAKE_SOURCE_DIR}/include/io/FileIOException.h
     ${CMAKE_SOURCE_DIR}/include/io/IFileReader.h
     ${CMAKE_SOURCE_DIR}/include/io/IFileWriter.h
-    ${CMAKE_SOURCE_DIR}/include/io/DynaFileReader.h
 )
 
 # Visualization module
@@ -98,7 +91,6 @@ set(UI_HEADERS
 set(UTILS_SOURCES
     utils/Logger.cpp
     utils/ConfigManager.cpp
-    utils/BoundingBox.cpp
     utils/Timer.cpp
     utils/FileUtils.cpp
     utils/StringUtils.cpp
@@ -109,7 +101,6 @@ set(UTILS_HEADERS
     ${CMAKE_SOURCE_DIR}/include/utils/Logger.h
     ${CMAKE_SOURCE_DIR}/include/utils/ConfigManager.h
     ${CMAKE_SOURCE_DIR}/include/utils/Exception.h
-    ${CMAKE_SOURCE_DIR}/include/utils/BoundingBox.h
 )
 
 # ============================================================================
@@ -134,11 +125,11 @@ if(VTK_FOUND)
     )
 endif()
 
-# Selection 모듈
-target_sources(koomesh_lib PRIVATE
-    ${SELECTION_SOURCES}
-    ${SELECTION_HEADERS}
-)
+# Selection 모듈 (TODO: Implement in later phases)
+# target_sources(koomesh_lib PRIVATE
+#     ${SELECTION_SOURCES}
+#     ${SELECTION_HEADERS}
+# )
 
 # UI 모듈 (Qt 사용 가능한 경우만)
 if(Qt6_FOUND)
