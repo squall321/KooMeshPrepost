@@ -20,6 +20,7 @@ set(CORE_SOURCES
     core/SpatialIndexFactory.cpp
     core/SpatialIndexBenchmark.cpp
     core/SpatialQueryOptimizer.cpp
+    core/PerformanceDocGenerator.cpp
 )
 
 set(CORE_HEADERS
@@ -40,6 +41,7 @@ set(CORE_HEADERS
     ${CMAKE_SOURCE_DIR}/include/core/SpatialIndexFactory.h
     ${CMAKE_SOURCE_DIR}/include/core/SpatialIndexBenchmark.h
     ${CMAKE_SOURCE_DIR}/include/core/SpatialQueryOptimizer.h
+    ${CMAKE_SOURCE_DIR}/include/core/PerformanceDocGenerator.h
 )
 
 # I/O module
