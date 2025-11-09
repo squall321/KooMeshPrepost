@@ -863,3 +863,23 @@ target_include_directories(test_lighting_manager
 
 add_test(NAME LightingManagerTests COMMAND test_lighting_manager)
 set_tests_properties(LightingManagerTests PROPERTIES TIMEOUT 60)
+
+# AnnotationManager tests (Phase 67)
+add_executable(test_annotation_manager
+    visualization/test_AnnotationManager.cpp
+)
+
+target_link_libraries(test_annotation_manager
+    PRIVATE
+        koomesh_lib
+        GTest::GTest
+        GTest::Main
+)
+
+target_include_directories(test_annotation_manager
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_test(NAME AnnotationManagerTests COMMAND test_annotation_manager)
+set_tests_properties(AnnotationManagerTests PROPERTIES TIMEOUT 60)
