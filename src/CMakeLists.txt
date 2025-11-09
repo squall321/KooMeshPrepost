@@ -1,0 +1,287 @@
+# ============================================================================
+# Source Files Collection
+# ============================================================================
+
+# Core module
+set(CORE_SOURCES
+    core/Node.cpp
+    core/Element.cpp
+    core/Mesh.cpp
+    core/Part.cpp
+    core/Group.cpp
+    core/GroupManager.cpp
+    core/ConfigManager.cpp
+    core/MeshValidator.cpp
+)
+
+set(CORE_HEADERS
+    ${CMAKE_SOURCE_DIR}/include/core/Node.h
+    ${CMAKE_SOURCE_DIR}/include/core/Element.h
+    ${CMAKE_SOURCE_DIR}/include/core/Mesh.h
+    ${CMAKE_SOURCE_DIR}/include/core/Part.h
+    ${CMAKE_SOURCE_DIR}/include/core/Group.h
+    ${CMAKE_SOURCE_DIR}/include/core/GroupManager.h
+)
+
+# I/O module
+set(IO_SOURCES
+    io/DynaFileReader.cpp
+    io/DynaFileWriter.cpp
+    io/DynaKeywordParser.cpp
+    io/FileFormatDetector.cpp
+    io/FileReaderFactory.cpp
+    io/AsyncFileLoader.cpp
+    io/MemoryMappedFile.cpp
+)
+
+set(IO_HEADERS
+    ${CMAKE_SOURCE_DIR}/include/io/IFileReader.h
+    ${CMAKE_SOURCE_DIR}/include/io/IFileWriter.h
+    ${CMAKE_SOURCE_DIR}/include/io/DynaFileReader.h
+)
+
+# Visualization module
+set(VISUALIZATION_SOURCES
+    visualization/VTKRenderer.cpp
+    visualization/MeshToVTK.cpp
+    visualization/CameraController.cpp
+    visualization/ActorManager.cpp
+    visualization/SelectionHighlighter.cpp
+    visualization/AreaSelector.cpp
+    visualization/ColorMapper.cpp
+    visualization/LightingManager.cpp
+)
+
+set(VISUALIZATION_HEADERS
+    ${CMAKE_SOURCE_DIR}/include/visualization/VTKRenderer.h
+    ${CMAKE_SOURCE_DIR}/include/visualization/MeshToVTK.h
+)
+
+# Selection module
+set(SELECTION_SOURCES
+    selection/SelectionManager.cpp
+    selection/Octree.cpp
+    selection/RTree.cpp
+    selection/KdTree.cpp
+    selection/UniformGrid.cpp
+    selection/SpatialIndexFactory.cpp
+)
+
+set(SELECTION_HEADERS
+    ${CMAKE_SOURCE_DIR}/include/selection/ISpatialIndex.h
+    ${CMAKE_SOURCE_DIR}/include/selection/SelectionManager.h
+    ${CMAKE_SOURCE_DIR}/include/selection/Octree.h
+)
+
+# UI module
+set(UI_SOURCES
+    ui/MainWindow.cpp
+    ui/PartsPanel.cpp
+    ui/GroupsPanel.cpp
+    ui/PropertiesPanel.cpp
+    ui/SelectionToolBar.cpp
+    ui/ProgressDialog.cpp
+    ui/SettingsDialog.cpp
+)
+
+set(UI_HEADERS
+    ${CMAKE_SOURCE_DIR}/include/ui/MainWindow.h
+    ${CMAKE_SOURCE_DIR}/include/ui/PartsPanel.h
+)
+
+# Utils module
+set(UTILS_SOURCES
+    utils/Logger.cpp
+    utils/BoundingBox.cpp
+    utils/Timer.cpp
+    utils/FileUtils.cpp
+    utils/StringUtils.cpp
+    utils/MathUtils.cpp
+)
+
+set(UTILS_HEADERS
+    ${CMAKE_SOURCE_DIR}/include/utils/Logger.h
+    ${CMAKE_SOURCE_DIR}/include/utils/BoundingBox.h
+)
+
+# ============================================================================
+# Library Target
+# ============================================================================
+
+# 라이브러리 생성 (실행 파일과 테스트에서 재사용)
+add_library(koomesh_lib
+    ${CORE_SOURCES}
+    ${CORE_HEADERS}
+    ${IO_SOURCES}
+    ${IO_HEADERS}
+    ${UTILS_SOURCES}
+    ${UTILS_HEADERS}
+)
+
+# Visualization 모듈 (VTK 사용 가능한 경우만)
+if(VTK_FOUND)
+    target_sources(koomesh_lib PRIVATE
+        ${VISUALIZATION_SOURCES}
+        ${VISUALIZATION_HEADERS}
+    )
+endif()
+
+# Selection 모듈
+target_sources(koomesh_lib PRIVATE
+    ${SELECTION_SOURCES}
+    ${SELECTION_HEADERS}
+)
+
+# UI 모듈 (Qt 사용 가능한 경우만)
+if(Qt6_FOUND)
+    target_sources(koomesh_lib PRIVATE
+        ${UI_SOURCES}
+        ${UI_HEADERS}
+    )
+endif()
+
+# 라이브러리 인클루드 디렉토리
+target_include_directories(koomesh_lib
+    PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:include/koomesh>
+    PRIVATE
+        ${CMAKE_SOURCE_DIR}/src
+)
+
+# 라이브러리 의존성
+target_link_libraries(koomesh_lib
+    PUBLIC
+        Eigen3::Eigen
+    PRIVATE
+        $<$<BOOL:${Boost_FOUND}>:Boost::filesystem Boost::system>
+        $<$<BOOL:${TBB_FOUND}>:TBB::tbb>
+)
+
+# VTK 링크
+if(VTK_FOUND)
+    target_link_libraries(koomesh_lib PRIVATE ${VTK_LIBRARIES})
+    target_include_directories(koomesh_lib PRIVATE ${VTK_INCLUDE_DIRS})
+
+    # VTK 모듈 자동 초기화
+    vtk_module_autoinit(
+        TARGETS koomesh_lib
+        MODULES ${VTK_LIBRARIES}
+    )
+endif()
+
+# Qt 링크
+if(Qt6_FOUND)
+    target_link_libraries(koomesh_lib PRIVATE
+        Qt6::Core
+        Qt6::Widgets
+        Qt6::OpenGLWidgets
+    )
+endif()
+
+# ============================================================================
+# Executable Target
+# ============================================================================
+
+# 메인 실행 파일
+add_executable(KooMeshPrepost
+    main.cpp
+)
+
+# 라이브러리 링크
+target_link_libraries(KooMeshPrepost
+    PRIVATE
+        koomesh_lib
+)
+
+# ============================================================================
+# Compiler Features and Definitions
+# ============================================================================
+
+# C++17 features
+target_compile_features(koomesh_lib PUBLIC cxx_std_17)
+target_compile_features(KooMeshPrepost PRIVATE cxx_std_17)
+
+# 조건부 컴파일 정의
+if(VTK_FOUND)
+    target_compile_definitions(koomesh_lib PUBLIC KOOMESH_HAS_VTK)
+endif()
+
+if(Qt6_FOUND)
+    target_compile_definitions(koomesh_lib PUBLIC KOOMESH_HAS_QT)
+endif()
+
+if(TBB_FOUND)
+    target_compile_definitions(koomesh_lib PUBLIC KOOMESH_HAS_TBB)
+endif()
+
+if(Boost_FOUND)
+    target_compile_definitions(koomesh_lib PUBLIC KOOMESH_HAS_BOOST)
+endif()
+
+# Debug/Release 정의
+target_compile_definitions(koomesh_lib PUBLIC
+    $<$<CONFIG:Debug>:KOOMESH_DEBUG>
+    $<$<CONFIG:Release>:KOOMESH_RELEASE>
+)
+
+# ============================================================================
+# Properties
+# ============================================================================
+
+# Position Independent Code (공유 라이브러리용)
+set_target_properties(koomesh_lib PROPERTIES
+    POSITION_INDEPENDENT_CODE ON
+)
+
+# 버전 정보
+set_target_properties(KooMeshPrepost PROPERTIES
+    VERSION ${PROJECT_VERSION}
+    SOVERSION ${PROJECT_VERSION_MAJOR}
+)
+
+# Output name
+set_target_properties(KooMeshPrepost PROPERTIES
+    OUTPUT_NAME "koomesh"
+)
+
+# ============================================================================
+# Installation
+# ============================================================================
+
+# 라이브러리 설치
+install(TARGETS koomesh_lib
+    EXPORT KooMeshPrepostTargets
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
+    RUNTIME DESTINATION bin
+    INCLUDES DESTINATION include/koomesh
+)
+
+# Export targets (다른 프로젝트에서 사용 가능)
+install(EXPORT KooMeshPrepostTargets
+    FILE KooMeshPrepostTargets.cmake
+    NAMESPACE KooMesh::
+    DESTINATION lib/cmake/KooMeshPrepost
+)
+
+# CMake config 파일
+include(CMakePackageConfigHelpers)
+
+configure_package_config_file(
+    ${CMAKE_SOURCE_DIR}/cmake/KooMeshPrepostConfig.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/KooMeshPrepostConfig.cmake
+    INSTALL_DESTINATION lib/cmake/KooMeshPrepost
+)
+
+write_basic_package_version_file(
+    ${CMAKE_CURRENT_BINARY_DIR}/KooMeshPrepostConfigVersion.cmake
+    VERSION ${PROJECT_VERSION}
+    COMPATIBILITY SameMajorVersion
+)
+
+install(FILES
+    ${CMAKE_CURRENT_BINARY_DIR}/KooMeshPrepostConfig.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/KooMeshPrepostConfigVersion.cmake
+    DESTINATION lib/cmake/KooMeshPrepost
+)

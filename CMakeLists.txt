@@ -1,35 +1,161 @@
 cmake_minimum_required(VERSION 3.20)
-project(KooMeshPrepost VERSION 1.0.0 LANGUAGES CXX)
+project(KooMeshPrepost
+    VERSION 1.0.0
+    DESCRIPTION "High-Performance Mesh Visualization and Preprocessing Tool"
+    LANGUAGES CXX
+)
 
-# C++17 표준 사용
+# ============================================================================
+# Project Options
+# ============================================================================
+
+option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
+option(BUILD_TESTS "Build unit and integration tests" ON)
+option(BUILD_EXAMPLES "Build example programs" ON)
+option(BUILD_DOCS "Build documentation (Doxygen)" OFF)
+option(ENABLE_PROFILING "Enable profiling support" OFF)
+option(ENABLE_SANITIZERS "Enable sanitizers (address, undefined)" OFF)
+option(ENABLE_LTO "Enable Link-Time Optimization" OFF)
+option(USE_SYSTEM_LIBRARIES "Use system libraries instead of bundled ones" ON)
+
+# ============================================================================
+# C++ Standard and Compiler Settings
+# ============================================================================
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# Export compile commands for clang-tidy
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 # 빌드 타입 기본값
-if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE Release)
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+    message(STATUS "Setting build type to 'Release' as none was specified")
+    set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build" FORCE)
+    set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
 
-# 컴파일러 최적화 옵션
+# ============================================================================
+# Compiler Flags
+# ============================================================================
+
+# 공통 컴파일러 플래그
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
+
+# GCC/Clang
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    # Release 빌드 최적화
     set(CMAKE_CXX_FLAGS_RELEASE "-O3 -march=native -DNDEBUG")
-    set(CMAKE_CXX_FLAGS_DEBUG "-g -O0 -Wall -Wextra -Wpedantic")
+
+    # Debug 빌드
+    set(CMAKE_CXX_FLAGS_DEBUG "-g -O0 -DDEBUG")
+
+    # 경고 설정
+    add_compile_options(
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Wconversion
+        -Wsign-conversion
+        -Wcast-qual
+        -Wformat=2
+        -Wundef
+        -Werror=float-equal
+        -Wshadow
+        -Wcast-align
+        -Wunused
+        -Wnull-dereference
+        -Wdouble-promotion
+        -Wimplicit-fallthrough
+    )
+
+    # Clang 전용
+    if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+        add_compile_options(-Wmost)
+    endif()
+
+# MSVC
+elseif(MSVC)
+    # Release 빌드
+    set(CMAKE_CXX_FLAGS_RELEASE "/O2 /Ob2 /DNDEBUG")
+
+    # Debug 빌드
+    set(CMAKE_CXX_FLAGS_DEBUG "/Od /Zi /DDEBUG")
+
+    # 경고 설정
+    add_compile_options(
+        /W4
+        /permissive-
+        /Zc:__cplusplus
+    )
+
+    # UTF-8 소스 코드
+    add_compile_options(/utf-8)
 endif()
 
-# 출력 디렉토리 설정
+# ============================================================================
+# Sanitizers (Debug 빌드에서만)
+# ============================================================================
+
+if(ENABLE_SANITIZERS AND CMAKE_BUILD_TYPE STREQUAL "Debug")
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        message(STATUS "Enabling sanitizers: address, undefined")
+        add_compile_options(-fsanitize=address -fsanitize=undefined -fno-omit-frame-pointer)
+        add_link_options(-fsanitize=address -fsanitize=undefined)
+    endif()
+endif()
+
+# ============================================================================
+# Link-Time Optimization
+# ============================================================================
+
+if(ENABLE_LTO)
+    include(CheckIPOSupported)
+    check_ipo_supported(RESULT ipo_supported OUTPUT ipo_error)
+    if(ipo_supported)
+        message(STATUS "Link-Time Optimization (LTO) enabled")
+        set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+    else()
+        message(WARNING "LTO not supported: ${ipo_error}")
+    endif()
+endif()
+
+# ============================================================================
+# Output Directories
+# ============================================================================
+
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
-# Qt 자동 처리
+# Multi-config generators (Visual Studio, Xcode)
+foreach(CONFIG ${CMAKE_CONFIGURATION_TYPES})
+    string(TOUPPER ${CONFIG} CONFIG_UPPER)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${CONFIG_UPPER} ${CMAKE_BINARY_DIR}/bin/${CONFIG})
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${CONFIG_UPPER} ${CMAKE_BINARY_DIR}/lib/${CONFIG})
+    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${CONFIG_UPPER} ${CMAKE_BINARY_DIR}/lib/${CONFIG})
+endforeach()
+
+# ============================================================================
+# Dependencies
+# ============================================================================
+
+# Qt6
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-# 필수 패키지 찾기
-find_package(Qt6 REQUIRED COMPONENTS Core Widgets OpenGLWidgets)
-find_package(VTK 9.0 REQUIRED COMPONENTS
+find_package(Qt6 6.2 QUIET COMPONENTS Core Widgets OpenGLWidgets)
+if(Qt6_FOUND)
+    message(STATUS "Found Qt6: ${Qt6_VERSION}")
+else()
+    message(WARNING "Qt6 not found - UI will not be built")
+    set(BUILD_GUI OFF)
+endif()
+
+# VTK
+find_package(VTK 9.0 QUIET COMPONENTS
     CommonCore
     CommonDataModel
     FiltersCore
@@ -41,153 +167,191 @@ find_package(VTK 9.0 REQUIRED COMPONENTS
     GUISupportQt
     IOLegacy
 )
-find_package(Eigen3 3.3 REQUIRED NO_MODULE)
-find_package(TBB REQUIRED)
-find_package(Boost 1.70 REQUIRED COMPONENTS filesystem system)
+if(VTK_FOUND)
+    message(STATUS "Found VTK: ${VTK_VERSION}")
+else()
+    message(WARNING "VTK not found - visualization features will be limited")
+    set(BUILD_VISUALIZATION OFF)
+endif()
 
-# 프로젝트 인클루드 디렉토리
+# Eigen3 (필수)
+find_package(Eigen3 3.3 REQUIRED NO_MODULE)
+message(STATUS "Found Eigen3: ${Eigen3_VERSION}")
+
+# Intel TBB
+find_package(TBB QUIET)
+if(TBB_FOUND)
+    message(STATUS "Found TBB: ${TBB_VERSION}")
+else()
+    message(WARNING "TBB not found - parallel processing will be disabled")
+    set(ENABLE_TBB OFF)
+endif()
+
+# Boost
+find_package(Boost 1.70 QUIET COMPONENTS filesystem system)
+if(Boost_FOUND)
+    message(STATUS "Found Boost: ${Boost_VERSION}")
+else()
+    message(WARNING "Boost not found - some file utilities will be limited")
+endif()
+
+# Google Test (테스트 빌드 시)
+if(BUILD_TESTS)
+    find_package(GTest QUIET)
+    if(NOT GTest_FOUND)
+        message(STATUS "Google Test not found - downloading from GitHub")
+        include(FetchContent)
+        FetchContent_Declare(
+            googletest
+            GIT_REPOSITORY https://github.com/google/googletest.git
+            GIT_TAG release-1.12.1
+        )
+        FetchContent_MakeAvailable(googletest)
+    endif()
+endif()
+
+# ============================================================================
+# Include Directories
+# ============================================================================
+
 include_directories(
     ${CMAKE_SOURCE_DIR}/include
     ${CMAKE_SOURCE_DIR}/src
 )
 
-# 소스 파일 수집
-set(CORE_SOURCES
-    src/core/Node.cpp
-    src/core/Element.cpp
-    src/core/Mesh.cpp
-    src/core/Part.cpp
-    src/core/Group.cpp
-    src/core/GroupManager.cpp
-    src/core/ConfigManager.cpp
-    src/core/MeshValidator.cpp
-)
+# ============================================================================
+# Subdirectories
+# ============================================================================
 
-set(IO_SOURCES
-    src/io/DynaFileReader.cpp
-    src/io/DynaFileWriter.cpp
-    src/io/FileFormatDetector.cpp
-    src/io/AsyncFileLoader.cpp
-)
+# 소스 코드
+add_subdirectory(src)
 
-set(VISUALIZATION_SOURCES
-    src/visualization/VTKRenderer.cpp
-    src/visualization/MeshToVTK.cpp
-    src/visualization/CameraController.cpp
-    src/visualization/ActorManager.cpp
-    src/visualization/SelectionHighlighter.cpp
-    src/visualization/AreaSelector.cpp
-)
+# 테스트
+if(BUILD_TESTS)
+    enable_testing()
+    add_subdirectory(tests)
+endif()
 
-set(SELECTION_SOURCES
-    src/selection/SelectionManager.cpp
-    src/selection/Octree.cpp
-    src/selection/SpatialIndexFactory.cpp
-)
+# 예제
+if(BUILD_EXAMPLES)
+    add_subdirectory(examples)
+endif()
 
-set(UI_SOURCES
-    src/ui/MainWindow.cpp
-    src/ui/PartsPanel.cpp
-    src/ui/GroupsPanel.cpp
-    src/ui/PropertiesPanel.cpp
-    src/ui/SelectionToolBar.cpp
-    src/ui/ProgressDialog.cpp
-)
+# 문서
+if(BUILD_DOCS)
+    find_package(Doxygen)
+    if(DOXYGEN_FOUND)
+        add_subdirectory(docs)
+    else()
+        message(WARNING "Doxygen not found - documentation will not be built")
+    endif()
+endif()
 
-set(UTILS_SOURCES
-    src/utils/Logger.cpp
-    src/utils/BoundingBox.cpp
-)
+# ============================================================================
+# Installation
+# ============================================================================
 
-# 헤더 파일
-set(HEADERS
-    include/core/Node.h
-    include/core/Element.h
-    include/core/Mesh.h
-    include/core/Part.h
-    include/core/Group.h
-    include/ui/MainWindow.h
-)
-
-# 메인 실행 파일
-add_executable(${PROJECT_NAME}
-    src/main.cpp
-    ${CORE_SOURCES}
-    ${IO_SOURCES}
-    ${VISUALIZATION_SOURCES}
-    ${SELECTION_SOURCES}
-    ${UI_SOURCES}
-    ${UTILS_SOURCES}
-    ${HEADERS}
-)
-
-# VTK 모듈 포함
-vtk_module_autoinit(
-    TARGETS ${PROJECT_NAME}
-    MODULES ${VTK_LIBRARIES}
-)
-
-# 라이브러리 링크
-target_link_libraries(${PROJECT_NAME}
-    PRIVATE
-        Qt6::Core
-        Qt6::Widgets
-        Qt6::OpenGLWidgets
-        ${VTK_LIBRARIES}
-        Eigen3::Eigen
-        TBB::tbb
-        Boost::filesystem
-        Boost::system
-)
-
-# 컴파일 옵션
-target_compile_options(${PROJECT_NAME} PRIVATE
-    $<$<CXX_COMPILER_ID:MSVC>:/W4>
-    $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Wpedantic>
-)
-
-# 인클루드 디렉토리
-target_include_directories(${PROJECT_NAME}
-    PRIVATE
-        ${CMAKE_SOURCE_DIR}/include
-        ${VTK_INCLUDE_DIRS}
-)
-
-# 설치 규칙
-install(TARGETS ${PROJECT_NAME}
+# 실행 파일
+install(TARGETS KooMeshPrepost
     RUNTIME DESTINATION bin
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
 )
 
-# 테스트 활성화
-enable_testing()
-add_subdirectory(tests)
+# 헤더 파일 (라이브러리 사용 시)
+install(DIRECTORY include/
+    DESTINATION include/koomesh
+    FILES_MATCHING PATTERN "*.h"
+)
 
-# CPack 패키징
+# 설정 파일
+install(FILES README.md LICENSE
+    DESTINATION share/doc/koomesh
+)
+
+# ============================================================================
+# Packaging (CPack)
+# ============================================================================
+
 set(CPACK_PACKAGE_NAME "KooMeshPrepost")
-set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
 set(CPACK_PACKAGE_VENDOR "Koo Engineering")
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "High-Performance Mesh Preprocessing Tool")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "High-Performance Mesh Visualization and Preprocessing Tool")
+set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
+set(CPACK_PACKAGE_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
+set(CPACK_PACKAGE_VERSION_MINOR ${PROJECT_VERSION_MINOR})
+set(CPACK_PACKAGE_VERSION_PATCH ${PROJECT_VERSION_PATCH})
+set(CPACK_PACKAGE_INSTALL_DIRECTORY "KooMeshPrepost")
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE")
 set(CPACK_RESOURCE_FILE_README "${CMAKE_SOURCE_DIR}/README.md")
 
 if(WIN32)
-    set(CPACK_GENERATOR "NSIS")
+    set(CPACK_GENERATOR "NSIS;ZIP")
+    set(CPACK_NSIS_DISPLAY_NAME "KooMeshPrepost")
+    set(CPACK_NSIS_PACKAGE_NAME "KooMeshPrepost")
+    set(CPACK_NSIS_URL_INFO_ABOUT "https://kooengineering.com")
+    set(CPACK_NSIS_HELP_LINK "https://docs.kooengineering.com")
 elseif(APPLE)
-    set(CPACK_GENERATOR "DragNDrop")
+    set(CPACK_GENERATOR "DragNDrop;TGZ")
+    set(CPACK_DMG_VOLUME_NAME "KooMeshPrepost")
 else()
-    set(CPACK_GENERATOR "DEB;RPM")
+    set(CPACK_GENERATOR "DEB;RPM;TGZ")
+
+    # Debian
+    set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Koo Engineering <support@kooengineering.com>")
+    set(CPACK_DEBIAN_PACKAGE_SECTION "science")
+    set(CPACK_DEBIAN_PACKAGE_DEPENDS "libqt6core6, libqt6widgets6, libvtk9, libeigen3-dev")
+
+    # RPM
+    set(CPACK_RPM_PACKAGE_LICENSE "MIT")
+    set(CPACK_RPM_PACKAGE_GROUP "Applications/Engineering")
+    set(CPACK_RPM_PACKAGE_REQUIRES "qt6-qtbase, vtk, eigen3")
 endif()
 
 include(CPack)
 
-# 개발 정보 출력
+# ============================================================================
+# Summary
+# ============================================================================
+
+message(STATUS "")
 message(STATUS "========================================")
-message(STATUS "KooMeshPrepost Configuration")
+message(STATUS "  KooMeshPrepost Configuration Summary")
 message(STATUS "========================================")
+message(STATUS "Version: ${PROJECT_VERSION}")
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
-message(STATUS "C++ standard: ${CMAKE_CXX_STANDARD}")
+message(STATUS "C++ standard: C++${CMAKE_CXX_STANDARD}")
 message(STATUS "Compiler: ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
-message(STATUS "Qt version: ${Qt6_VERSION}")
-message(STATUS "VTK version: ${VTK_VERSION}")
-message(STATUS "Eigen version: ${Eigen3_VERSION}")
+message(STATUS "")
+message(STATUS "Options:")
+message(STATUS "  BUILD_TESTS: ${BUILD_TESTS}")
+message(STATUS "  BUILD_EXAMPLES: ${BUILD_EXAMPLES}")
+message(STATUS "  BUILD_DOCS: ${BUILD_DOCS}")
+message(STATUS "  ENABLE_SANITIZERS: ${ENABLE_SANITIZERS}")
+message(STATUS "  ENABLE_LTO: ${ENABLE_LTO}")
+message(STATUS "")
+message(STATUS "Dependencies:")
+if(Qt6_FOUND)
+    message(STATUS "  Qt6: ${Qt6_VERSION}")
+else()
+    message(STATUS "  Qt6: NOT FOUND")
+endif()
+if(VTK_FOUND)
+    message(STATUS "  VTK: ${VTK_VERSION}")
+else()
+    message(STATUS "  VTK: NOT FOUND")
+endif()
+message(STATUS "  Eigen3: ${Eigen3_VERSION}")
+if(TBB_FOUND)
+    message(STATUS "  TBB: ${TBB_VERSION}")
+else()
+    message(STATUS "  TBB: NOT FOUND")
+endif()
+if(Boost_FOUND)
+    message(STATUS "  Boost: ${Boost_VERSION}")
+else()
+    message(STATUS "  Boost: NOT FOUND")
+endif()
+message(STATUS "")
+message(STATUS "Install prefix: ${CMAKE_INSTALL_PREFIX}")
 message(STATUS "========================================")
+message(STATUS "")
