@@ -478,8 +478,7 @@ bool ElementBeamParser::parseElementLine(
     }
 
     try {
-        auto element = core::Element::create(
-            core::ElementType::BEAM,
+        auto element = std::make_unique<core::BeamElement>(
             elemId,
             partId,
             nodeIds);

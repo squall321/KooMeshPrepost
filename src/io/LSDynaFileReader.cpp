@@ -358,7 +358,6 @@ void LSDynaFileReader::validateMesh(
     validationOptions.checkDuplicateElements = false;
     validationOptions.checkDegenerateElements = true;
     validationOptions.checkElementQuality = false;  // Optional, can be slow
-    validationOptions.minQuality = 0.1;
 
     auto validationResult = validator.validate(mesh, validationOptions);
 

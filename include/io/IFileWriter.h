@@ -2,6 +2,7 @@
 
 #include "core/Mesh.h"
 #include "FileIOException.h"
+#include "IFileReader.h"  // For ProgressCallback definition
 #include <string>
 #include <memory>
 #include <functional>

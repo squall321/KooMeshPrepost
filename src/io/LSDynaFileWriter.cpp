@@ -1,9 +1,12 @@
 #include "io/LSDynaFileWriter.h"
 #include "io/FileIOException.h"
+#include "io/IFileReader.h"  // For ProgressCallback definition
+#include "core/MeshStatistics.h"
 #include <chrono>
 #include <algorithm>
 #include <iomanip>
 #include <sstream>
+#include <map>
 
 namespace koomesh {
 namespace io {

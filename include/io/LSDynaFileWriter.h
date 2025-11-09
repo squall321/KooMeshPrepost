@@ -1,6 +1,7 @@
 #pragma once
 
 #include "io/IFileWriter.h"
+#include "io/IFileReader.h"  // For ProgressCallback definition
 #include "io/LSDynaKeywordParser.h"
 #include <memory>
 #include <fstream>

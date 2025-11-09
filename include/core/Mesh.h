@@ -156,6 +156,21 @@ public:
     auto elementsBegin() const { return m_elements.begin(); }
     auto elementsEnd() const { return m_elements.end(); }
 
+    /**
+     * @brief 모든 노드 컬렉션 접근 (read-only)
+     */
+    const std::unordered_map<NodeId, Node>& nodes() const { return m_nodes; }
+
+    /**
+     * @brief 모든 요소 컬렉션 접근 (read-only)
+     */
+    const std::unordered_map<ElementId, std::unique_ptr<Element>>& elements() const { return m_elements; }
+
+    /**
+     * @brief 모든 파트 컬렉션 접근 (read-only)
+     */
+    const std::unordered_map<PartId, Part>& parts() const { return m_parts; }
+
 private:
     // 효율적인 조회를 위한 hash map
     std::unordered_map<NodeId, Node> m_nodes;

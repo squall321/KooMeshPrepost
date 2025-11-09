@@ -36,6 +36,12 @@ set(IO_SOURCES
     io/ChunkedFileReader.cpp
     io/ErrorHandler.cpp
     io/LSDynaFileWriter.cpp
+    io/STLFileReader.cpp
+    io/STLFileWriter.cpp
+    io/VTKFileReader.cpp
+    io/VTKFileWriter.cpp
+    io/NastranFileReader.cpp
+    io/NastranFileWriter.cpp
 )
 
 set(IO_HEADERS
@@ -48,6 +54,12 @@ set(IO_HEADERS
     ${CMAKE_SOURCE_DIR}/include/io/ChunkedFileReader.h
     ${CMAKE_SOURCE_DIR}/include/io/ErrorHandler.h
     ${CMAKE_SOURCE_DIR}/include/io/LSDynaFileWriter.h
+    ${CMAKE_SOURCE_DIR}/include/io/STLFileReader.h
+    ${CMAKE_SOURCE_DIR}/include/io/STLFileWriter.h
+    ${CMAKE_SOURCE_DIR}/include/io/VTKFileReader.h
+    ${CMAKE_SOURCE_DIR}/include/io/VTKFileWriter.h
+    ${CMAKE_SOURCE_DIR}/include/io/NastranFileReader.h
+    ${CMAKE_SOURCE_DIR}/include/io/NastranFileWriter.h
 )
 
 # Visualization module
