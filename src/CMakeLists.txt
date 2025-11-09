@@ -100,6 +100,7 @@ set(VISUALIZATION_SOURCES
     visualization/AreaSelector.cpp
     visualization/HardwareSelector.cpp
     visualization/ColorMapper.cpp
+    visualization/LightingManager.cpp
 )
 
 set(VISUALIZATION_HEADERS
@@ -113,6 +114,7 @@ set(VISUALIZATION_HEADERS
     ${CMAKE_SOURCE_DIR}/include/visualization/HardwareSelector.h
     ${CMAKE_SOURCE_DIR}/include/visualization/ColorMapper.h
     ${CMAKE_SOURCE_DIR}/include/visualization/VisualizationOptions.h
+    ${CMAKE_SOURCE_DIR}/include/visualization/LightingManager.h
 )
 
 # Selection module

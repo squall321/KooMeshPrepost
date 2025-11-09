@@ -843,3 +843,23 @@ target_include_directories(test_color_mapper
 
 add_test(NAME ColorMapperTests COMMAND test_color_mapper)
 set_tests_properties(ColorMapperTests PROPERTIES TIMEOUT 60)
+
+# LightingManager tests (Phase 66)
+add_executable(test_lighting_manager
+    visualization/test_LightingManager.cpp
+)
+
+target_link_libraries(test_lighting_manager
+    PRIVATE
+        koomesh_lib
+        GTest::GTest
+        GTest::Main
+)
+
+target_include_directories(test_lighting_manager
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_test(NAME LightingManagerTests COMMAND test_lighting_manager)
+set_tests_properties(LightingManagerTests PROPERTIES TIMEOUT 60)
