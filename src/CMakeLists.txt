@@ -18,6 +18,7 @@ set(CORE_SOURCES
     core/KdTree.cpp
     core/UniformGrid.cpp
     core/SpatialIndexFactory.cpp
+    core/SpatialIndexBenchmark.cpp
 )
 
 set(CORE_HEADERS
@@ -36,6 +37,7 @@ set(CORE_HEADERS
     ${CMAKE_SOURCE_DIR}/include/core/KdTree.h
     ${CMAKE_SOURCE_DIR}/include/core/UniformGrid.h
     ${CMAKE_SOURCE_DIR}/include/core/SpatialIndexFactory.h
+    ${CMAKE_SOURCE_DIR}/include/core/SpatialIndexBenchmark.h
 )
 
 # I/O module
