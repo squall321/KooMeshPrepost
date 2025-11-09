@@ -100,6 +100,26 @@ target_link_libraries(test_memory_pool
 add_test(NAME MemoryPoolTests COMMAND test_memory_pool)
 set_tests_properties(MemoryPoolTests PROPERTIES TIMEOUT 30)
 
+# Helpers 예제 테스트
+add_executable(test_helpers_example
+    unit/test_helpers_example.cpp
+)
+
+target_link_libraries(test_helpers_example
+    PRIVATE
+        koomesh_lib
+        GTest::GTest
+        GTest::Main
+)
+
+target_include_directories(test_helpers_example
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_test(NAME HelpersExampleTests COMMAND test_helpers_example)
+set_tests_properties(HelpersExampleTests PROPERTIES TIMEOUT 30)
+
 # 향후 추가될 테스트들 (현재는 주석 처리)
 # add_executable(test_mesh
 #     unit/test_mesh.cpp
