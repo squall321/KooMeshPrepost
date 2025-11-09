@@ -803,3 +803,23 @@ target_include_directories(test_hardware_selector
 
 add_test(NAME HardwareSelectorTests COMMAND test_hardware_selector)
 set_tests_properties(HardwareSelectorTests PROPERTIES TIMEOUT 60)
+
+# VisualizationOptions tests (Phase 64)
+add_executable(test_visualization_options
+    visualization/test_VisualizationOptions.cpp
+)
+
+target_link_libraries(test_visualization_options
+    PRIVATE
+        koomesh_lib
+        GTest::GTest
+        GTest::Main
+)
+
+target_include_directories(test_visualization_options
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_test(NAME VisualizationOptionsTests COMMAND test_visualization_options)
+set_tests_properties(VisualizationOptionsTests PROPERTIES TIMEOUT 60)
