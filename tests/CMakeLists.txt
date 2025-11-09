@@ -520,6 +520,26 @@ target_include_directories(test_spatial_query_optimizer
 add_test(NAME SpatialQueryOptimizerTests COMMAND test_spatial_query_optimizer)
 set_tests_properties(SpatialQueryOptimizerTests PROPERTIES TIMEOUT 120)
 
+# Parallel Index Builder 테스트 (Phase 52)
+add_executable(test_parallel_index_builder
+    unit/core/test_parallel_index_builder.cpp
+)
+
+target_link_libraries(test_parallel_index_builder
+    PRIVATE
+        koomesh_lib
+        GTest::GTest
+        GTest::Main
+)
+
+target_include_directories(test_parallel_index_builder
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_test(NAME ParallelIndexBuilderTests COMMAND test_parallel_index_builder)
+set_tests_properties(ParallelIndexBuilderTests PROPERTIES TIMEOUT 120)
+
 # Selection Manager 테스트 (Phase 51)
 add_executable(test_selection_manager
     unit/selection/test_selection_manager.cpp
