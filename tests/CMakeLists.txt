@@ -823,3 +823,23 @@ target_include_directories(test_visualization_options
 
 add_test(NAME VisualizationOptionsTests COMMAND test_visualization_options)
 set_tests_properties(VisualizationOptionsTests PROPERTIES TIMEOUT 60)
+
+# ColorMapper tests (Phase 65)
+add_executable(test_color_mapper
+    visualization/test_ColorMapper.cpp
+)
+
+target_link_libraries(test_color_mapper
+    PRIVATE
+        koomesh_lib
+        GTest::GTest
+        GTest::Main
+)
+
+target_include_directories(test_color_mapper
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_test(NAME ColorMapperTests COMMAND test_color_mapper)
+set_tests_properties(ColorMapperTests PROPERTIES TIMEOUT 60)
