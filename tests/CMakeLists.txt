@@ -180,6 +180,46 @@ target_include_directories(test_group
 add_test(NAME GroupTests COMMAND test_group)
 set_tests_properties(GroupTests PROPERTIES TIMEOUT 30)
 
+# Transform 테스트
+add_executable(test_transform
+    unit/test_transform.cpp
+)
+
+target_link_libraries(test_transform
+    PRIVATE
+        koomesh_lib
+        GTest::GTest
+        GTest::Main
+)
+
+target_include_directories(test_transform
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_test(NAME TransformTests COMMAND test_transform)
+set_tests_properties(TransformTests PROPERTIES TIMEOUT 30)
+
+# MeshValidator 및 MeshStatistics 테스트
+add_executable(test_mesh_analysis
+    unit/test_mesh_analysis.cpp
+)
+
+target_link_libraries(test_mesh_analysis
+    PRIVATE
+        koomesh_lib
+        GTest::GTest
+        GTest::Main
+)
+
+target_include_directories(test_mesh_analysis
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_test(NAME MeshAnalysisTests COMMAND test_mesh_analysis)
+set_tests_properties(MeshAnalysisTests PROPERTIES TIMEOUT 30)
+
 # 향후 추가될 테스트들 (현재는 주석 처리)
 # add_executable(test_mesh
 #     unit/test_mesh.cpp

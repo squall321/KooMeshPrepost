@@ -10,8 +10,10 @@ set(CORE_SOURCES
     core/Part.cpp
     core/Group.cpp
     core/GroupManager.cpp
-    core/ConfigManager.cpp
+    core/Transform.cpp
     core/MeshValidator.cpp
+    core/MeshStatistics.cpp
+    core/ConfigManager.cpp
 )
 
 set(CORE_HEADERS
@@ -21,6 +23,9 @@ set(CORE_HEADERS
     ${CMAKE_SOURCE_DIR}/include/core/Part.h
     ${CMAKE_SOURCE_DIR}/include/core/Group.h
     ${CMAKE_SOURCE_DIR}/include/core/GroupManager.h
+    ${CMAKE_SOURCE_DIR}/include/core/Transform.h
+    ${CMAKE_SOURCE_DIR}/include/core/MeshValidator.h
+    ${CMAKE_SOURCE_DIR}/include/core/MeshStatistics.h
 )
 
 # I/O module
