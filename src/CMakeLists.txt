@@ -35,6 +35,7 @@ set(IO_SOURCES
     io/LSDynaFileReader.cpp
     io/ChunkedFileReader.cpp
     io/ErrorHandler.cpp
+    io/LSDynaFileWriter.cpp
 )
 
 set(IO_HEADERS
@@ -46,6 +47,7 @@ set(IO_HEADERS
     ${CMAKE_SOURCE_DIR}/include/io/LSDynaFileReader.h
     ${CMAKE_SOURCE_DIR}/include/io/ChunkedFileReader.h
     ${CMAKE_SOURCE_DIR}/include/io/ErrorHandler.h
+    ${CMAKE_SOURCE_DIR}/include/io/LSDynaFileWriter.h
 )
 
 # Visualization module
