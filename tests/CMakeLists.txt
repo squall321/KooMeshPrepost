@@ -320,6 +320,26 @@ target_include_directories(test_chunked_file_reader
 add_test(NAME ChunkedFileReaderTests COMMAND test_chunked_file_reader)
 set_tests_properties(ChunkedFileReaderTests PROPERTIES TIMEOUT 120)
 
+# Error Handler 테스트
+add_executable(test_error_handler
+    unit/io/test_error_handler.cpp
+)
+
+target_link_libraries(test_error_handler
+    PRIVATE
+        koomesh_lib
+        GTest::GTest
+        GTest::Main
+)
+
+target_include_directories(test_error_handler
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_test(NAME ErrorHandlerTests COMMAND test_error_handler)
+set_tests_properties(ErrorHandlerTests PROPERTIES TIMEOUT 60)
+
 # 향후 추가될 테스트들 (현재는 주석 처리)
 # add_executable(test_mesh
 #     unit/test_mesh.cpp

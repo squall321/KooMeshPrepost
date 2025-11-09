@@ -4,6 +4,7 @@
 #include "core/Node.h"
 #include "core/Element.h"
 #include "io/FileIOException.h"
+#include "io/ErrorHandler.h"
 #include <string>
 #include <vector>
 #include <memory>
@@ -36,16 +37,43 @@ struct ParseContext {
     size_t elementsProcessed = 0;
     size_t partsProcessed = 0;
 
-    // Errors and warnings
+    // Error handling (optional)
+    ErrorHandler* errorHandler = nullptr;
+
+    // Errors and warnings (legacy - use errorHandler if available)
     std::vector<std::string> errors;
     std::vector<std::string> warnings;
 
     void addError(const std::string& message) {
-        errors.push_back("Line " + std::to_string(lineNumber) + ": " + message);
+        if (errorHandler) {
+            errorHandler->handleError(
+                ErrorSeverity::ERROR,
+                message,
+                filename,
+                lineNumber,
+                currentKeyword
+            );
+        } else {
+            errors.push_back("Line " + std::to_string(lineNumber) + ": " + message);
+        }
     }
 
     void addWarning(const std::string& message) {
-        warnings.push_back("Line " + std::to_string(lineNumber) + ": " + message);
+        if (errorHandler) {
+            errorHandler->handleError(
+                ErrorSeverity::WARNING,
+                message,
+                filename,
+                lineNumber,
+                currentKeyword
+            );
+        } else {
+            warnings.push_back("Line " + std::to_string(lineNumber) + ": " + message);
+        }
+    }
+
+    bool shouldAbort() const {
+        return errorHandler && errorHandler->shouldAbort();
     }
 };
 
