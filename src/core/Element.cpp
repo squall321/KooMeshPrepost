@@ -47,6 +47,45 @@ double BoundingBox::volume() const {
     return dx * dy * dz;
 }
 
+void BoundingBox::expand(const BoundingBox& other) {
+    minX = std::min(minX, other.minX);
+    minY = std::min(minY, other.minY);
+    minZ = std::min(minZ, other.minZ);
+    maxX = std::max(maxX, other.maxX);
+    maxY = std::max(maxY, other.maxY);
+    maxZ = std::max(maxZ, other.maxZ);
+}
+
+double BoundingBox::distanceSquared(const Eigen::Vector3d& point) const {
+    double distSq = 0.0;
+
+    if (point.x() < minX) {
+        double d = minX - point.x();
+        distSq += d * d;
+    } else if (point.x() > maxX) {
+        double d = point.x() - maxX;
+        distSq += d * d;
+    }
+
+    if (point.y() < minY) {
+        double d = minY - point.y();
+        distSq += d * d;
+    } else if (point.y() > maxY) {
+        double d = point.y() - maxY;
+        distSq += d * d;
+    }
+
+    if (point.z() < minZ) {
+        double d = minZ - point.z();
+        distSq += d * d;
+    } else if (point.z() > maxZ) {
+        double d = point.z() - maxZ;
+        distSq += d * d;
+    }
+
+    return distSq;
+}
+
 // ======================================================================
 // Element 기본 클래스 구현
 // ======================================================================

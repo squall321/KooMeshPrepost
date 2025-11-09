@@ -13,6 +13,9 @@ set(CORE_SOURCES
     core/Transform.cpp
     core/MeshValidator.cpp
     core/MeshStatistics.cpp
+    core/Octree.cpp
+    core/RTree.cpp
+    core/KdTree.cpp
 )
 
 set(CORE_HEADERS
@@ -25,6 +28,10 @@ set(CORE_HEADERS
     ${CMAKE_SOURCE_DIR}/include/core/Transform.h
     ${CMAKE_SOURCE_DIR}/include/core/MeshValidator.h
     ${CMAKE_SOURCE_DIR}/include/core/MeshStatistics.h
+    ${CMAKE_SOURCE_DIR}/include/core/ISpatialIndex.h
+    ${CMAKE_SOURCE_DIR}/include/core/Octree.h
+    ${CMAKE_SOURCE_DIR}/include/core/RTree.h
+    ${CMAKE_SOURCE_DIR}/include/core/KdTree.h
 )
 
 # I/O module

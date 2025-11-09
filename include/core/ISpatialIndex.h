@@ -1,7 +1,7 @@
 #pragma once
 
-#include "core/Types.h"
-#include "core/BoundingBox.h"
+#include "core/Node.h"  // For NodeId, ElementId
+#include "core/Element.h"  // For BoundingBox
 #include <vector>
 #include <memory>
 

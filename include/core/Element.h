@@ -33,11 +33,22 @@ struct BoundingBox {
 
     BoundingBox() : minX(0), minY(0), minZ(0), maxX(0), maxY(0), maxZ(0) {}
 
+    BoundingBox(const Eigen::Vector3d& minPt, const Eigen::Vector3d& maxPt)
+        : minX(minPt.x()), minY(minPt.y()), minZ(minPt.z())
+        , maxX(maxPt.x()), maxY(maxPt.y()), maxZ(maxPt.z()) {}
+
     bool intersects(const BoundingBox& other) const;
     bool contains(const Eigen::Vector3d& point) const;
     void expand(const Eigen::Vector3d& point);
+    void expand(const BoundingBox& other);
     Eigen::Vector3d center() const;
     double volume() const;
+
+    // Additional methods for spatial indexes
+    Eigen::Vector3d min() const { return Eigen::Vector3d(minX, minY, minZ); }
+    Eigen::Vector3d max() const { return Eigen::Vector3d(maxX, maxY, maxZ); }
+
+    double distanceSquared(const Eigen::Vector3d& point) const;
 };
 
 using PartId = uint32_t;

@@ -400,6 +400,66 @@ target_include_directories(test_async_file_loader
 add_test(NAME AsyncFileLoaderTests COMMAND test_async_file_loader)
 set_tests_properties(AsyncFileLoaderTests PROPERTIES TIMEOUT 120)
 
+# Octree 테스트 (Phase 42)
+add_executable(test_octree
+    unit/core/test_octree.cpp
+)
+
+target_link_libraries(test_octree
+    PRIVATE
+        koomesh_lib
+        GTest::GTest
+        GTest::Main
+)
+
+target_include_directories(test_octree
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_test(NAME OctreeTests COMMAND test_octree)
+set_tests_properties(OctreeTests PROPERTIES TIMEOUT 120)
+
+# R-Tree 테스트 (Phase 43)
+add_executable(test_rtree
+    unit/core/test_rtree.cpp
+)
+
+target_link_libraries(test_rtree
+    PRIVATE
+        koomesh_lib
+        GTest::GTest
+        GTest::Main
+)
+
+target_include_directories(test_rtree
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_test(NAME RTreeTests COMMAND test_rtree)
+set_tests_properties(RTreeTests PROPERTIES TIMEOUT 120)
+
+# K-d Tree 테스트 (Phase 44)
+add_executable(test_kdtree
+    unit/core/test_kdtree.cpp
+)
+
+target_link_libraries(test_kdtree
+    PRIVATE
+        koomesh_lib
+        GTest::GTest
+        GTest::Main
+)
+
+target_include_directories(test_kdtree
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_test(NAME KdTreeTests COMMAND test_kdtree)
+set_tests_properties(KdTreeTests PROPERTIES TIMEOUT 120)
+
 # 향후 추가될 테스트들 (현재는 주석 처리)
 # add_executable(test_mesh
 #     unit/test_mesh.cpp
