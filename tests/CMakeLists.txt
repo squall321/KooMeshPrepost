@@ -743,3 +743,23 @@ target_include_directories(test_custom_interactor_style
 
 add_test(NAME CustomInteractorStyleTests COMMAND test_custom_interactor_style)
 set_tests_properties(CustomInteractorStyleTests PROPERTIES TIMEOUT 60)
+
+# SelectionHighlighter tests (Phase 61)
+add_executable(test_selection_highlighter
+    visualization/test_SelectionHighlighter.cpp
+)
+
+target_link_libraries(test_selection_highlighter
+    PRIVATE
+        koomesh_lib
+        GTest::GTest
+        GTest::Main
+)
+
+target_include_directories(test_selection_highlighter
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_test(NAME SelectionHighlighterTests COMMAND test_selection_highlighter)
+set_tests_properties(SelectionHighlighterTests PROPERTIES TIMEOUT 60)
