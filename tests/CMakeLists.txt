@@ -663,3 +663,23 @@ target_include_directories(test_vtk_renderer
 
 add_test(NAME VTKRendererTests COMMAND test_vtk_renderer)
 set_tests_properties(VTKRendererTests PROPERTIES TIMEOUT 60)
+
+# MeshToVTK tests (Phase 57)
+add_executable(test_mesh_to_vtk
+    unit/visualization/test_mesh_to_vtk.cpp
+)
+
+target_link_libraries(test_mesh_to_vtk
+    PRIVATE
+        koomesh_lib
+        GTest::GTest
+        GTest::Main
+)
+
+target_include_directories(test_mesh_to_vtk
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_test(NAME MeshToVTKTests COMMAND test_mesh_to_vtk)
+set_tests_properties(MeshToVTKTests PROPERTIES TIMEOUT 60)
