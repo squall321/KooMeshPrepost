@@ -16,6 +16,7 @@ set(CORE_SOURCES
     core/Octree.cpp
     core/RTree.cpp
     core/KdTree.cpp
+    core/UniformGrid.cpp
 )
 
 set(CORE_HEADERS
@@ -32,6 +33,7 @@ set(CORE_HEADERS
     ${CMAKE_SOURCE_DIR}/include/core/Octree.h
     ${CMAKE_SOURCE_DIR}/include/core/RTree.h
     ${CMAKE_SOURCE_DIR}/include/core/KdTree.h
+    ${CMAKE_SOURCE_DIR}/include/core/UniformGrid.h
 )
 
 # I/O module
