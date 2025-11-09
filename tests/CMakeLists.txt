@@ -640,3 +640,26 @@ target_include_directories(test_spatial_index_workflow
 
 add_test(NAME SpatialIndexWorkflowTests COMMAND test_spatial_index_workflow)
 set_tests_properties(SpatialIndexWorkflowTests PROPERTIES TIMEOUT 300)
+
+# ======================================================================
+# Visualization Tests (Phase 56)
+# ======================================================================
+
+add_executable(test_vtk_renderer
+    unit/visualization/test_vtk_renderer.cpp
+)
+
+target_link_libraries(test_vtk_renderer
+    PRIVATE
+        koomesh_lib
+        GTest::GTest
+        GTest::Main
+)
+
+target_include_directories(test_vtk_renderer
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_test(NAME VTKRendererTests COMMAND test_vtk_renderer)
+set_tests_properties(VTKRendererTests PROPERTIES TIMEOUT 60)
