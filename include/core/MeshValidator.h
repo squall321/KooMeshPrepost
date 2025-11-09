@@ -91,7 +91,7 @@ public:
      * @brief 메시 전체 검증
      */
     ValidationResult validate(const Mesh& mesh,
-                             const ValidationOptions& options = ValidationOptions());
+                             const ValidationOptions& options);
 
     /**
      * @brief 노드 참조 검증

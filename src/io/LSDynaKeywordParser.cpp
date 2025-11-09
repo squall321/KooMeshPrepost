@@ -227,8 +227,8 @@ bool NodeParser::parseNodeLine(
 
     // Create and add node
     try {
-        auto node = std::make_unique<core::Node>(nodeId, x, y, z);
-        mesh.addNode(std::move(node));
+        core::Node node(nodeId, x, y, z);
+        mesh.addNode(node);
         ++context.nodesProcessed;
         return true;
     } catch (const std::exception& e) {
@@ -309,7 +309,7 @@ bool ElementSolidParser::parseElementLine(
     core::ElementType elemType = detectElementType(nodeIds);
 
     try {
-        auto element = core::Element::create(elemType, elemId, partId, nodeIds);
+        auto element = core::ElementFactory::create(elemType, elemId, partId, nodeIds);
         mesh.addElement(std::move(element));
         ++context.elementsProcessed;
         return true;
@@ -405,7 +405,7 @@ bool ElementShellParser::parseElementLine(
         : core::ElementType::QUADRILATERAL;
 
     try {
-        auto element = core::Element::create(elemType, elemId, partId, nodeIds);
+        auto element = core::ElementFactory::create(elemType, elemId, partId, nodeIds);
         mesh.addElement(std::move(element));
         ++context.elementsProcessed;
         return true;
@@ -532,10 +532,10 @@ size_t PartParser::parse(
 
             if (partId != 0) {
                 // Create part
-                auto part = std::make_unique<core::Part>(partId, partName);
+                core::Part part(partId, partName);
 
                 try {
-                    mesh.addPart(std::move(part));
+                    mesh.addPart(part);
                     ++context.partsProcessed;
                 } catch (const std::exception& e) {
                     context.addError(std::string("Failed to add part: ") + e.what());

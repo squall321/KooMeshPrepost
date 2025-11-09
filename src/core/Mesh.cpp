@@ -1,4 +1,5 @@
 #include "core/Mesh.h"
+#include "selection/ISpatialIndex.h"
 #include "utils/Exception.h"
 #include "utils/Logger.h"
 #include <algorithm>
@@ -129,7 +130,7 @@ void Mesh::addElementsBatch(std::vector<std::unique_ptr<Element>> elements) {
 
         // 노드에 요소 연결 정보 추가
         for (NodeId nodeId : nodeIds) {
-            m_nodes[nodeId].addConnectedElement(id);
+            m_nodes.at(nodeId).addConnectedElement(id);
         }
 
         m_elements.emplace(id, std::move(element));

@@ -241,7 +241,7 @@ void MeshStatistics::computeVolumeStatistics(const Mesh& mesh, Statistics& stats
         stats.avgElementVolume = stats.totalVolume / count;
     }
 
-    if (stats.minElementVolume == std::numeric_limits<double>::max()) {
+    if (stats.minElementVolume > std::numeric_limits<double>::max() / 2.0) {
         stats.minElementVolume = 0.0;
     }
 }

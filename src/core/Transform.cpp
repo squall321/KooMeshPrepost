@@ -48,8 +48,8 @@ void Transform::scale(double factor) {
 }
 
 void Transform::scale(double scaleX, double scaleY, double scaleZ) {
-    Eigen::DiagonalMatrix<double, 3> scaleMatrix(scaleX, scaleY, scaleZ);
-    m_transform.scale(scaleMatrix);
+    Eigen::Vector3d scaleVec(scaleX, scaleY, scaleZ);
+    m_transform.scale(scaleVec);
 }
 
 // ======================================================================

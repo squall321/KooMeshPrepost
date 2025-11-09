@@ -231,6 +231,14 @@ if(BUILD_TESTS)
             GIT_TAG release-1.12.1
         )
         FetchContent_MakeAvailable(googletest)
+
+        # Create aliases for compatibility with find_package(GTest)
+        if(NOT TARGET GTest::GTest)
+            add_library(GTest::GTest ALIAS gtest)
+        endif()
+        if(NOT TARGET GTest::Main)
+            add_library(GTest::Main ALIAS gtest_main)
+        endif()
     endif()
 endif()
 

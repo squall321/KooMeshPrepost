@@ -351,7 +351,7 @@ void LSDynaFileReader::validateMesh(
 {
     core::MeshValidator validator;
 
-    core::ValidationOptions validationOptions;
+    core::MeshValidator::ValidationOptions validationOptions;
     validationOptions.checkNodeReferences = true;
     validationOptions.checkConnectivity = true;
     validationOptions.checkDuplicateNodes = false;  // Too slow for large meshes

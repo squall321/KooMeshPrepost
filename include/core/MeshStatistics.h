@@ -86,7 +86,7 @@ public:
     /**
      * @brief 메시 통계 계산
      */
-    static Statistics compute(const Mesh& mesh, const Options& options = Options());
+    static Statistics compute(const Mesh& mesh, const Options& options);
 
 private:
     /**

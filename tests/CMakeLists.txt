@@ -300,6 +300,26 @@ target_include_directories(test_lsdyna_file_reader
 add_test(NAME LSDynaFileReaderTests COMMAND test_lsdyna_file_reader)
 set_tests_properties(LSDynaFileReaderTests PROPERTIES TIMEOUT 60)
 
+# Chunked File Reader 테스트
+add_executable(test_chunked_file_reader
+    unit/io/test_chunked_file_reader.cpp
+)
+
+target_link_libraries(test_chunked_file_reader
+    PRIVATE
+        koomesh_lib
+        GTest::GTest
+        GTest::Main
+)
+
+target_include_directories(test_chunked_file_reader
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_test(NAME ChunkedFileReaderTests COMMAND test_chunked_file_reader)
+set_tests_properties(ChunkedFileReaderTests PROPERTIES TIMEOUT 120)
+
 # 향후 추가될 테스트들 (현재는 주석 처리)
 # add_executable(test_mesh
 #     unit/test_mesh.cpp
