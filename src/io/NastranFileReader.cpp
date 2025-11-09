@@ -96,12 +96,6 @@ bool NastranFileReader::isReading() const {
 // Registration
 // ======================================================================
 
-void registerNastranReader() {
-    // TODO: Uncomment when implementation is ready
-    // FileReaderFactory::registerReader([]() {
-    //     return std::make_unique<NastranFileReader>();
-    // });
-}
 
 } // namespace io
 } // namespace koomesh

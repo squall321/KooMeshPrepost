@@ -178,37 +178,6 @@ std::string WriteResult::generateReport() const {
 }
 
 // ======================================================================
-// FileReaderFactory Implementation
-// ======================================================================
-
-std::vector<FileReaderFactory::ReaderCreator>& FileReaderFactory::getCreators() {
-    static std::vector<ReaderCreator> creators;
-    return creators;
-}
-
-void FileReaderFactory::registerReader(ReaderCreator creator) {
-    getCreators().push_back(creator);
-}
-
-std::unique_ptr<IFileReader> FileReaderFactory::createReader(const std::string& filename) {
-    for (const auto& creator : getCreators()) {
-        auto reader = creator();
-        if (reader && reader->canRead(filename)) {
-            return reader;
-        }
-    }
-    return nullptr;
-}
-
-std::vector<std::unique_ptr<IFileReader>> FileReaderFactory::getAllReaders() {
-    std::vector<std::unique_ptr<IFileReader>> readers;
-    for (const auto& creator : getCreators()) {
-        readers.push_back(creator());
-    }
-    return readers;
-}
-
-// ======================================================================
 // FileWriterFactory Implementation
 // ======================================================================
 

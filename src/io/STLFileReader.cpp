@@ -410,11 +410,6 @@ bool STLFileReader::updateProgress(
 // Registration
 // ======================================================================
 
-void registerSTLReader() {
-    FileReaderFactory::registerReader([]() {
-        return std::make_unique<STLFileReader>();
-    });
-}
 
 } // namespace io
 } // namespace koomesh

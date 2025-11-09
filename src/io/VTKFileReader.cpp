@@ -83,12 +83,6 @@ bool VTKFileReader::isReading() const {
 // Registration
 // ======================================================================
 
-void registerVTKReader() {
-    // TODO: Uncomment when implementation is ready
-    // FileReaderFactory::registerReader([]() {
-    //     return std::make_unique<VTKFileReader>();
-    // });
-}
 
 } // namespace io
 } // namespace koomesh

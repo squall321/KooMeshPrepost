@@ -135,35 +135,5 @@ public:
     virtual bool isReading() const = 0;
 };
 
-/**
- * @brief Factory for creating file readers
- */
-class FileReaderFactory {
-public:
-    /**
-     * @brief Create appropriate reader for file
-     *
-     * @param filename Path to file
-     * @return Unique pointer to reader, or nullptr if no reader found
-     */
-    static std::unique_ptr<IFileReader> createReader(const std::string& filename);
-
-    /**
-     * @brief Register a reader implementation
-     *
-     * @param creator Function that creates reader instance
-     */
-    using ReaderCreator = std::function<std::unique_ptr<IFileReader>()>;
-    static void registerReader(ReaderCreator creator);
-
-    /**
-     * @brief Get all registered readers
-     */
-    static std::vector<std::unique_ptr<IFileReader>> getAllReaders();
-
-private:
-    static std::vector<ReaderCreator>& getCreators();
-};
-
 } // namespace io
 } // namespace koomesh

@@ -42,6 +42,9 @@ set(IO_SOURCES
     io/VTKFileWriter.cpp
     io/NastranFileReader.cpp
     io/NastranFileWriter.cpp
+    io/FileFormatDetector.cpp
+    io/FileReaderFactory.cpp
+    io/AsyncFileLoader.cpp
 )
 
 set(IO_HEADERS
@@ -60,6 +63,9 @@ set(IO_HEADERS
     ${CMAKE_SOURCE_DIR}/include/io/VTKFileWriter.h
     ${CMAKE_SOURCE_DIR}/include/io/NastranFileReader.h
     ${CMAKE_SOURCE_DIR}/include/io/NastranFileWriter.h
+    ${CMAKE_SOURCE_DIR}/include/io/FileFormatDetector.h
+    ${CMAKE_SOURCE_DIR}/include/io/FileReaderFactory.h
+    ${CMAKE_SOURCE_DIR}/include/io/AsyncFileLoader.h
 )
 
 # Visualization module

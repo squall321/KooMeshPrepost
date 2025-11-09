@@ -383,11 +383,6 @@ void LSDynaFileReader::validateMesh(
 // Registration
 // ======================================================================
 
-void registerLSDynaReader() {
-    FileReaderFactory::registerReader([]() {
-        return std::make_unique<LSDynaFileReader>();
-    });
-}
 
 } // namespace io
 } // namespace koomesh
