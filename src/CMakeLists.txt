@@ -102,6 +102,7 @@ set(VISUALIZATION_SOURCES
     visualization/ColorMapper.cpp
     visualization/LightingManager.cpp
     visualization/AnnotationManager.cpp
+    visualization/ScreenshotManager.cpp
 )
 
 set(VISUALIZATION_HEADERS
@@ -117,6 +118,7 @@ set(VISUALIZATION_HEADERS
     ${CMAKE_SOURCE_DIR}/include/visualization/VisualizationOptions.h
     ${CMAKE_SOURCE_DIR}/include/visualization/LightingManager.h
     ${CMAKE_SOURCE_DIR}/include/visualization/AnnotationManager.h
+    ${CMAKE_SOURCE_DIR}/include/visualization/ScreenshotManager.h
 )
 
 # Selection module

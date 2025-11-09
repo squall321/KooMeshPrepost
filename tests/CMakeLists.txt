@@ -883,3 +883,23 @@ target_include_directories(test_annotation_manager
 
 add_test(NAME AnnotationManagerTests COMMAND test_annotation_manager)
 set_tests_properties(AnnotationManagerTests PROPERTIES TIMEOUT 60)
+
+# ScreenshotManager tests (Phase 68)
+add_executable(test_screenshot_manager
+    visualization/test_ScreenshotManager.cpp
+)
+
+target_link_libraries(test_screenshot_manager
+    PRIVATE
+        koomesh_lib
+        GTest::GTest
+        GTest::Main
+)
+
+target_include_directories(test_screenshot_manager
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_test(NAME ScreenshotManagerTests COMMAND test_screenshot_manager)
+set_tests_properties(ScreenshotManagerTests PROPERTIES TIMEOUT 60)
