@@ -128,6 +128,106 @@ public:
 };
 
 /**
+ * @brief 오각기둥 요소 (6-node pentahedron/wedge)
+ */
+class PentahedronElement : public Element {
+public:
+    PentahedronElement(ElementId id, PartId partId, const std::vector<NodeId>& nodeIds);
+
+    ElementType type() const override { return ElementType::PENTAHEDRON; }
+    size_t nodeCount() const override { return 6; }
+    double computeQuality(const Mesh& mesh) const override;
+    double computeVolume(const Mesh& mesh) const override;
+    bool containsPoint(const Eigen::Vector3d& point, const Mesh& mesh) const override;
+};
+
+/**
+ * @brief 피라미드 요소 (5-node pyramid)
+ */
+class PyramidElement : public Element {
+public:
+    PyramidElement(ElementId id, PartId partId, const std::vector<NodeId>& nodeIds);
+
+    ElementType type() const override { return ElementType::PYRAMID; }
+    size_t nodeCount() const override { return 5; }
+    double computeQuality(const Mesh& mesh) const override;
+    double computeVolume(const Mesh& mesh) const override;
+    bool containsPoint(const Eigen::Vector3d& point, const Mesh& mesh) const override;
+};
+
+/**
+ * @brief 삼각형 쉘 요소 (3-node triangle shell)
+ */
+class TriangleElement : public Element {
+public:
+    TriangleElement(ElementId id, PartId partId, const std::vector<NodeId>& nodeIds);
+
+    ElementType type() const override { return ElementType::TRIANGLE; }
+    size_t nodeCount() const override { return 3; }
+    double computeQuality(const Mesh& mesh) const override;
+    double computeVolume(const Mesh& mesh) const override;  // 면적 반환
+    bool containsPoint(const Eigen::Vector3d& point, const Mesh& mesh) const override;
+
+    /**
+     * @brief 법선 벡터 계산
+     */
+    Eigen::Vector3d computeNormal(const Mesh& mesh) const;
+
+    /**
+     * @brief 면적 계산
+     */
+    double computeArea(const Mesh& mesh) const;
+};
+
+/**
+ * @brief 사각형 쉘 요소 (4-node quadrilateral shell)
+ */
+class QuadrilateralElement : public Element {
+public:
+    QuadrilateralElement(ElementId id, PartId partId, const std::vector<NodeId>& nodeIds);
+
+    ElementType type() const override { return ElementType::QUADRILATERAL; }
+    size_t nodeCount() const override { return 4; }
+    double computeQuality(const Mesh& mesh) const override;
+    double computeVolume(const Mesh& mesh) const override;  // 면적 반환
+    bool containsPoint(const Eigen::Vector3d& point, const Mesh& mesh) const override;
+
+    /**
+     * @brief 법선 벡터 계산
+     */
+    Eigen::Vector3d computeNormal(const Mesh& mesh) const;
+
+    /**
+     * @brief 면적 계산
+     */
+    double computeArea(const Mesh& mesh) const;
+};
+
+/**
+ * @brief 빔 요소 (2-node beam)
+ */
+class BeamElement : public Element {
+public:
+    BeamElement(ElementId id, PartId partId, const std::vector<NodeId>& nodeIds);
+
+    ElementType type() const override { return ElementType::BEAM; }
+    size_t nodeCount() const override { return 2; }
+    double computeQuality(const Mesh& mesh) const override;
+    double computeVolume(const Mesh& mesh) const override;  // 길이 반환
+    bool containsPoint(const Eigen::Vector3d& point, const Mesh& mesh) const override;
+
+    /**
+     * @brief 길이 계산
+     */
+    double computeLength(const Mesh& mesh) const;
+
+    /**
+     * @brief 방향 벡터 계산 (정규화됨)
+     */
+    Eigen::Vector3d computeDirection(const Mesh& mesh) const;
+};
+
+/**
  * @brief Element Factory - Factory 패턴
  *
  * 요소 타입에 따라 적절한 Element 객체를 생성합니다.

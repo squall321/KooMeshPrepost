@@ -80,6 +80,56 @@ public:
     }
 
     /**
+     * @brief 오각기둥 요소 추가
+     */
+    MeshBuilder& addPentahedron(core::ElementId id, core::PartId partId,
+                                const std::vector<core::NodeId>& nodeIds) {
+        auto element = std::make_unique<core::PentahedronElement>(id, partId, nodeIds);
+        m_mesh->addElement(std::move(element));
+        return *this;
+    }
+
+    /**
+     * @brief 피라미드 요소 추가
+     */
+    MeshBuilder& addPyramid(core::ElementId id, core::PartId partId,
+                            const std::vector<core::NodeId>& nodeIds) {
+        auto element = std::make_unique<core::PyramidElement>(id, partId, nodeIds);
+        m_mesh->addElement(std::move(element));
+        return *this;
+    }
+
+    /**
+     * @brief 삼각형 쉘 요소 추가
+     */
+    MeshBuilder& addTriangle(core::ElementId id, core::PartId partId,
+                             const std::vector<core::NodeId>& nodeIds) {
+        auto element = std::make_unique<core::TriangleElement>(id, partId, nodeIds);
+        m_mesh->addElement(std::move(element));
+        return *this;
+    }
+
+    /**
+     * @brief 사각형 쉘 요소 추가
+     */
+    MeshBuilder& addQuadrilateral(core::ElementId id, core::PartId partId,
+                                  const std::vector<core::NodeId>& nodeIds) {
+        auto element = std::make_unique<core::QuadrilateralElement>(id, partId, nodeIds);
+        m_mesh->addElement(std::move(element));
+        return *this;
+    }
+
+    /**
+     * @brief 빔 요소 추가
+     */
+    MeshBuilder& addBeam(core::ElementId id, core::PartId partId,
+                         const std::vector<core::NodeId>& nodeIds) {
+        auto element = std::make_unique<core::BeamElement>(id, partId, nodeIds);
+        m_mesh->addElement(std::move(element));
+        return *this;
+    }
+
+    /**
      * @brief Part 추가
      */
     MeshBuilder& addPart(core::PartId id, const std::string& name = "") {
@@ -137,6 +187,71 @@ public:
             .addNode(7, 1.0, 1.0, 1.0)
             .addNode(8, 0.0, 1.0, 1.0)
             .addHexahedron(1, 1, {1, 2, 3, 4, 5, 6, 7, 8})
+            .build();
+    }
+
+    /**
+     * @brief 단일 오각기둥 메시 (wedge)
+     */
+    static std::unique_ptr<core::Mesh> singlePentahedron() {
+        return MeshBuilder()
+            .addNode(1, 0.0, 0.0, 0.0)
+            .addNode(2, 1.0, 0.0, 0.0)
+            .addNode(3, 0.5, 1.0, 0.0)
+            .addNode(4, 0.0, 0.0, 1.0)
+            .addNode(5, 1.0, 0.0, 1.0)
+            .addNode(6, 0.5, 1.0, 1.0)
+            .addPentahedron(1, 1, {1, 2, 3, 4, 5, 6})
+            .build();
+    }
+
+    /**
+     * @brief 단일 피라미드 메시
+     */
+    static std::unique_ptr<core::Mesh> singlePyramid() {
+        return MeshBuilder()
+            .addNode(1, 0.0, 0.0, 0.0)
+            .addNode(2, 1.0, 0.0, 0.0)
+            .addNode(3, 1.0, 1.0, 0.0)
+            .addNode(4, 0.0, 1.0, 0.0)
+            .addNode(5, 0.5, 0.5, 1.0)
+            .addPyramid(1, 1, {1, 2, 3, 4, 5})
+            .build();
+    }
+
+    /**
+     * @brief 단일 삼각형 쉘 메시
+     */
+    static std::unique_ptr<core::Mesh> singleTriangle() {
+        return MeshBuilder()
+            .addNode(1, 0.0, 0.0, 0.0)
+            .addNode(2, 1.0, 0.0, 0.0)
+            .addNode(3, 0.5, 1.0, 0.0)
+            .addTriangle(1, 1, {1, 2, 3})
+            .build();
+    }
+
+    /**
+     * @brief 단일 사각형 쉘 메시
+     */
+    static std::unique_ptr<core::Mesh> singleQuadrilateral() {
+        return MeshBuilder()
+            .addNode(1, 0.0, 0.0, 0.0)
+            .addNode(2, 1.0, 0.0, 0.0)
+            .addNode(3, 1.0, 1.0, 0.0)
+            .addNode(4, 0.0, 1.0, 0.0)
+            .addQuadrilateral(1, 1, {1, 2, 3, 4})
+            .build();
+    }
+
+    /**
+     * @brief 단일 빔 메시
+     */
+    static std::unique_ptr<core::Mesh> singleBeam() {
+        return MeshBuilder()
+            .addNode(1, 0.0, 0.0, 0.0)
+            .addNode(2, 1.0, 0.0, 0.0)
+            .addBeam(1, 1, {1, 2})
             .build();
     }
 

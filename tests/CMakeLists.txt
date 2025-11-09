@@ -120,6 +120,26 @@ target_include_directories(test_helpers_example
 add_test(NAME HelpersExampleTests COMMAND test_helpers_example)
 set_tests_properties(HelpersExampleTests PROPERTIES TIMEOUT 30)
 
+# Additional Element Types 테스트
+add_executable(test_additional_elements
+    unit/test_additional_elements.cpp
+)
+
+target_link_libraries(test_additional_elements
+    PRIVATE
+        koomesh_lib
+        GTest::GTest
+        GTest::Main
+)
+
+target_include_directories(test_additional_elements
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_test(NAME AdditionalElementsTests COMMAND test_additional_elements)
+set_tests_properties(AdditionalElementsTests PROPERTIES TIMEOUT 30)
+
 # 향후 추가될 테스트들 (현재는 주석 처리)
 # add_executable(test_mesh
 #     unit/test_mesh.cpp
