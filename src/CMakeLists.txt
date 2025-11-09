@@ -17,6 +17,7 @@ set(CORE_SOURCES
     core/RTree.cpp
     core/KdTree.cpp
     core/UniformGrid.cpp
+    core/SpatialIndexFactory.cpp
 )
 
 set(CORE_HEADERS
@@ -34,6 +35,7 @@ set(CORE_HEADERS
     ${CMAKE_SOURCE_DIR}/include/core/RTree.h
     ${CMAKE_SOURCE_DIR}/include/core/KdTree.h
     ${CMAKE_SOURCE_DIR}/include/core/UniformGrid.h
+    ${CMAKE_SOURCE_DIR}/include/core/SpatialIndexFactory.h
 )
 
 # I/O module

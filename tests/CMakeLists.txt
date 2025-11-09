@@ -480,6 +480,26 @@ target_include_directories(test_uniformgrid
 add_test(NAME UniformGridTests COMMAND test_uniformgrid)
 set_tests_properties(UniformGridTests PROPERTIES TIMEOUT 120)
 
+# Spatial Index Factory 테스트 (Phase 46)
+add_executable(test_spatial_index_factory
+    unit/core/test_spatial_index_factory.cpp
+)
+
+target_link_libraries(test_spatial_index_factory
+    PRIVATE
+        koomesh_lib
+        GTest::GTest
+        GTest::Main
+)
+
+target_include_directories(test_spatial_index_factory
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_test(NAME SpatialIndexFactoryTests COMMAND test_spatial_index_factory)
+set_tests_properties(SpatialIndexFactoryTests PROPERTIES TIMEOUT 120)
+
 # 향후 추가될 테스트들 (현재는 주석 처리)
 # add_executable(test_mesh
 #     unit/test_mesh.cpp
