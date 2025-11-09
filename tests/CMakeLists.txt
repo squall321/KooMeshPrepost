@@ -723,3 +723,23 @@ target_include_directories(test_camera_controller
 
 add_test(NAME CameraControllerTests COMMAND test_camera_controller)
 set_tests_properties(CameraControllerTests PROPERTIES TIMEOUT 60)
+
+# CustomInteractorStyle tests (Phase 60)
+add_executable(test_custom_interactor_style
+    unit/visualization/test_custom_interactor_style.cpp
+)
+
+target_link_libraries(test_custom_interactor_style
+    PRIVATE
+        koomesh_lib
+        GTest::GTest
+        GTest::Main
+)
+
+target_include_directories(test_custom_interactor_style
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_test(NAME CustomInteractorStyleTests COMMAND test_custom_interactor_style)
+set_tests_properties(CustomInteractorStyleTests PROPERTIES TIMEOUT 60)

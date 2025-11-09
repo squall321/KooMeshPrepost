@@ -95,6 +95,7 @@ set(VISUALIZATION_SOURCES
     visualization/MeshToVTK.cpp
     visualization/CameraController.cpp
     visualization/ActorManager.cpp
+    visualization/CustomInteractorStyle.cpp
     visualization/SelectionHighlighter.cpp
     visualization/AreaSelector.cpp
     visualization/ColorMapper.cpp
@@ -106,6 +107,7 @@ set(VISUALIZATION_HEADERS
     ${CMAKE_SOURCE_DIR}/include/visualization/MeshToVTK.h
     ${CMAKE_SOURCE_DIR}/include/visualization/ActorManager.h
     ${CMAKE_SOURCE_DIR}/include/visualization/CameraController.h
+    ${CMAKE_SOURCE_DIR}/include/visualization/CustomInteractorStyle.h
 )
 
 # Selection module
