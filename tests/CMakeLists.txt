@@ -70,6 +70,21 @@ target_link_libraries(test_exception
 add_test(NAME ExceptionTests COMMAND test_exception)
 set_tests_properties(ExceptionTests PROPERTIES TIMEOUT 30)
 
+# Core 테스트 (Node, Element, Mesh, Part)
+add_executable(test_core
+    unit/test_core.cpp
+)
+
+target_link_libraries(test_core
+    PRIVATE
+        koomesh_lib
+        GTest::GTest
+        GTest::Main
+)
+
+add_test(NAME CoreTests COMMAND test_core)
+set_tests_properties(CoreTests PROPERTIES TIMEOUT 30)
+
 # 향후 추가될 테스트들 (현재는 주석 처리)
 # add_executable(test_mesh
 #     unit/test_mesh.cpp
