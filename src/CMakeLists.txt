@@ -32,6 +32,7 @@ set(IO_SOURCES
     io/FileIO.cpp
     io/MemoryMappedFile.cpp
     io/LSDynaKeywordParser.cpp
+    io/LSDynaFileReader.cpp
 )
 
 set(IO_HEADERS
@@ -40,6 +41,7 @@ set(IO_HEADERS
     ${CMAKE_SOURCE_DIR}/include/io/IFileWriter.h
     ${CMAKE_SOURCE_DIR}/include/io/MemoryMappedFile.h
     ${CMAKE_SOURCE_DIR}/include/io/LSDynaKeywordParser.h
+    ${CMAKE_SOURCE_DIR}/include/io/LSDynaFileReader.h
 )
 
 # Visualization module
