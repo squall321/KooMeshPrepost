@@ -903,3 +903,23 @@ target_include_directories(test_screenshot_manager
 
 add_test(NAME ScreenshotManagerTests COMMAND test_screenshot_manager)
 set_tests_properties(ScreenshotManagerTests PROPERTIES TIMEOUT 60)
+
+# MemoryOptimizer tests (Phase 69)
+add_executable(test_memory_optimizer
+    visualization/test_MemoryOptimizer.cpp
+)
+
+target_link_libraries(test_memory_optimizer
+    PRIVATE
+        koomesh_lib
+        GTest::GTest
+        GTest::Main
+)
+
+target_include_directories(test_memory_optimizer
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_test(NAME MemoryOptimizerTests COMMAND test_memory_optimizer)
+set_tests_properties(MemoryOptimizerTests PROPERTIES TIMEOUT 60)
