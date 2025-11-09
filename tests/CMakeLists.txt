@@ -55,6 +55,21 @@ target_link_libraries(test_config
 add_test(NAME ConfigTests COMMAND test_config)
 set_tests_properties(ConfigTests PROPERTIES TIMEOUT 30)
 
+# Exception 테스트
+add_executable(test_exception
+    unit/test_exception.cpp
+)
+
+target_link_libraries(test_exception
+    PRIVATE
+        koomesh_lib
+        GTest::GTest
+        GTest::Main
+)
+
+add_test(NAME ExceptionTests COMMAND test_exception)
+set_tests_properties(ExceptionTests PROPERTIES TIMEOUT 30)
+
 # 향후 추가될 테스트들 (현재는 주석 처리)
 # add_executable(test_mesh
 #     unit/test_mesh.cpp

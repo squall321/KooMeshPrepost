@@ -103,6 +103,7 @@ set(UTILS_SOURCES
 set(UTILS_HEADERS
     ${CMAKE_SOURCE_DIR}/include/utils/Logger.h
     ${CMAKE_SOURCE_DIR}/include/utils/ConfigManager.h
+    ${CMAKE_SOURCE_DIR}/include/utils/Exception.h
     ${CMAKE_SOURCE_DIR}/include/utils/BoundingBox.h
 )
 
