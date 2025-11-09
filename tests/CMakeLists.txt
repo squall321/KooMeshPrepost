@@ -340,6 +340,66 @@ target_include_directories(test_error_handler
 add_test(NAME ErrorHandlerTests COMMAND test_error_handler)
 set_tests_properties(ErrorHandlerTests PROPERTIES TIMEOUT 60)
 
+# File Format Detector 테스트 (Phase 39)
+add_executable(test_file_format_detector
+    unit/io/test_file_format_detector.cpp
+)
+
+target_link_libraries(test_file_format_detector
+    PRIVATE
+        koomesh_lib
+        GTest::GTest
+        GTest::Main
+)
+
+target_include_directories(test_file_format_detector
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_test(NAME FileFormatDetectorTests COMMAND test_file_format_detector)
+set_tests_properties(FileFormatDetectorTests PROPERTIES TIMEOUT 60)
+
+# File Reader Factory 테스트 (Phase 39)
+add_executable(test_file_reader_factory
+    unit/io/test_file_reader_factory.cpp
+)
+
+target_link_libraries(test_file_reader_factory
+    PRIVATE
+        koomesh_lib
+        GTest::GTest
+        GTest::Main
+)
+
+target_include_directories(test_file_reader_factory
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_test(NAME FileReaderFactoryTests COMMAND test_file_reader_factory)
+set_tests_properties(FileReaderFactoryTests PROPERTIES TIMEOUT 60)
+
+# Async File Loader 테스트 (Phase 39)
+add_executable(test_async_file_loader
+    unit/io/test_async_file_loader.cpp
+)
+
+target_link_libraries(test_async_file_loader
+    PRIVATE
+        koomesh_lib
+        GTest::GTest
+        GTest::Main
+)
+
+target_include_directories(test_async_file_loader
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_test(NAME AsyncFileLoaderTests COMMAND test_async_file_loader)
+set_tests_properties(AsyncFileLoaderTests PROPERTIES TIMEOUT 120)
+
 # 향후 추가될 테스트들 (현재는 주석 처리)
 # add_executable(test_mesh
 #     unit/test_mesh.cpp

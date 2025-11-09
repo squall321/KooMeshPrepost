@@ -3,6 +3,7 @@
 #include "core/Element.h"
 #include "core/Mesh.h"
 #include "core/Part.h"
+#include "utils/Exception.h"
 #include <cmath>
 
 using namespace koomesh::core;

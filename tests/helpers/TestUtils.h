@@ -5,6 +5,9 @@
 #include <cmath>
 #include <string>
 #include <vector>
+#include <fstream>
+#include <thread>
+#include <chrono>
 
 namespace koomesh {
 namespace test {
