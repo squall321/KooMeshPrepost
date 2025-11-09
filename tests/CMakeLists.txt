@@ -619,20 +619,24 @@ set_tests_properties(SelectionManagerTests PROPERTIES TIMEOUT 120)
 # )
 
 # ======================================================================
-# 통합 테스트 (향후 구현)
+# 통합 테스트 (Phases 54-55)
 # ======================================================================
 
-# add_executable(integration_tests
-#     integration/test_full_workflow.cpp
-#     integration/test_large_mesh.cpp
-# )
-#
-# target_link_libraries(integration_tests
-#     PRIVATE
-#         koomesh_lib
-#         GTest::GTest
-#         GTest::Main
-# )
-#
-# add_test(NAME IntegrationTests COMMAND integration_tests)
-# set_tests_properties(IntegrationTests PROPERTIES TIMEOUT 300)
+add_executable(test_spatial_index_workflow
+    integration/test_spatial_index_workflow.cpp
+)
+
+target_link_libraries(test_spatial_index_workflow
+    PRIVATE
+        koomesh_lib
+        GTest::GTest
+        GTest::Main
+)
+
+target_include_directories(test_spatial_index_workflow
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_test(NAME SpatialIndexWorkflowTests COMMAND test_spatial_index_workflow)
+set_tests_properties(SpatialIndexWorkflowTests PROPERTIES TIMEOUT 300)
