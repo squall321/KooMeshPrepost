@@ -1,0 +1,289 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., v1.0.0)'
+        required: true
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  # 릴리스 빌드 - Linux
+  build-linux:
+    name: Build Linux Packages
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        arch: [x64]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          cmake \
+          ninja-build \
+          gcc-12 \
+          g++-12 \
+          libeigen3-dev \
+          qt6-base-dev \
+          libvtk9-dev \
+          libtbb-dev \
+          libboost-all-dev
+
+    - name: Get version
+      id: version
+      run: |
+        if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+          echo "version=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+        else
+          echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Configure CMake
+      env:
+        CC: gcc-12
+        CXX: g++-12
+      run: |
+        cmake -B build \
+          -G Ninja \
+          -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
+          -DENABLE_LTO=ON \
+          -DBUILD_TESTS=OFF \
+          -DBUILD_EXAMPLES=ON
+
+    - name: Build
+      run: cmake --build build --config ${{ env.BUILD_TYPE }} -j$(nproc)
+
+    - name: Create packages
+      working-directory: build
+      run: |
+        cpack -G "DEB;RPM;TGZ"
+
+    - name: Upload DEB package
+      uses: actions/upload-artifact@v3
+      with:
+        name: KooMeshPrepost-${{ steps.version.outputs.version }}-Linux-deb
+        path: build/*.deb
+
+    - name: Upload RPM package
+      uses: actions/upload-artifact@v3
+      with:
+        name: KooMeshPrepost-${{ steps.version.outputs.version }}-Linux-rpm
+        path: build/*.rpm
+
+    - name: Upload TGZ package
+      uses: actions/upload-artifact@v3
+      with:
+        name: KooMeshPrepost-${{ steps.version.outputs.version }}-Linux-tgz
+        path: build/*.tar.gz
+
+  # 릴리스 빌드 - macOS
+  build-macos:
+    name: Build macOS Package
+    runs-on: macos-13
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        brew install cmake ninja eigen qt6 vtk tbb boost
+
+    - name: Get version
+      id: version
+      run: |
+        if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+          echo "version=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+        else
+          echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Configure CMake
+      run: |
+        cmake -B build \
+          -G Ninja \
+          -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
+          -DENABLE_LTO=ON \
+          -DBUILD_TESTS=OFF \
+          -DBUILD_EXAMPLES=ON
+
+    - name: Build
+      run: cmake --build build --config ${{ env.BUILD_TYPE }} -j$(sysctl -n hw.ncpu)
+
+    - name: Create DMG
+      working-directory: build
+      run: cpack -G "DragNDrop"
+
+    - name: Upload DMG package
+      uses: actions/upload-artifact@v3
+      with:
+        name: KooMeshPrepost-${{ steps.version.outputs.version }}-macOS
+        path: build/*.dmg
+
+  # 릴리스 빌드 - Windows
+  build-windows:
+    name: Build Windows Package
+    runs-on: windows-2022
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup vcpkg
+      uses: lukka/run-vcpkg@v11
+      with:
+        vcpkgGitCommitId: 'a42af01b72c28a8e1d7b48107b33e4f286a55ef6'
+
+    - name: Install dependencies
+      run: |
+        vcpkg install eigen3:x64-windows
+        vcpkg install qt6:x64-windows
+        vcpkg install vtk:x64-windows
+        vcpkg install tbb:x64-windows
+        vcpkg install boost:x64-windows
+
+    - name: Get version
+      id: version
+      shell: bash
+      run: |
+        if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+          echo "version=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+        else
+          echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Configure CMake
+      run: |
+        cmake -B build `
+          -G "Visual Studio 17 2022" -A x64 `
+          -DCMAKE_TOOLCHAIN_FILE="${env:VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" `
+          -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} `
+          -DENABLE_LTO=ON `
+          -DBUILD_TESTS=OFF `
+          -DBUILD_EXAMPLES=ON
+
+    - name: Build
+      run: cmake --build build --config ${{ env.BUILD_TYPE }} -j
+
+    - name: Create installer
+      working-directory: build
+      run: cpack -C ${{ env.BUILD_TYPE }} -G "NSIS;ZIP"
+
+    - name: Upload NSIS installer
+      uses: actions/upload-artifact@v3
+      with:
+        name: KooMeshPrepost-${{ steps.version.outputs.version }}-Windows-installer
+        path: build/*.exe
+
+    - name: Upload ZIP package
+      uses: actions/upload-artifact@v3
+      with:
+        name: KooMeshPrepost-${{ steps.version.outputs.version }}-Windows-zip
+        path: build/*.zip
+
+  # GitHub Release 생성
+  create-release:
+    name: Create GitHub Release
+    needs: [build-linux, build-macos, build-windows]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Get version
+      id: version
+      run: echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+    - name: Download all artifacts
+      uses: actions/download-artifact@v3
+      with:
+        path: artifacts
+
+    - name: Generate changelog
+      id: changelog
+      run: |
+        # 간단한 changelog 생성 (이전 태그 이후의 커밋들)
+        PREV_TAG=$(git describe --abbrev=0 --tags $(git rev-list --tags --skip=1 --max-count=1) 2>/dev/null || echo "")
+
+        if [ -n "$PREV_TAG" ]; then
+          echo "## Changes since $PREV_TAG" > changelog.md
+          git log ${PREV_TAG}..HEAD --pretty=format:"- %s (%h)" >> changelog.md
+        else
+          echo "## Initial Release" > changelog.md
+        fi
+
+        echo "" >> changelog.md
+        echo "## Downloads" >> changelog.md
+        echo "" >> changelog.md
+        echo "### Linux" >> changelog.md
+        echo "- DEB package (Ubuntu/Debian)" >> changelog.md
+        echo "- RPM package (Fedora/RHEL)" >> changelog.md
+        echo "- TGZ archive (generic Linux)" >> changelog.md
+        echo "" >> changelog.md
+        echo "### macOS" >> changelog.md
+        echo "- DMG installer" >> changelog.md
+        echo "" >> changelog.md
+        echo "### Windows" >> changelog.md
+        echo "- NSIS installer (.exe)" >> changelog.md
+        echo "- ZIP archive" >> changelog.md
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        name: KooMeshPrepost ${{ steps.version.outputs.version }}
+        body_path: changelog.md
+        draft: false
+        prerelease: false
+        files: |
+          artifacts/**/*.deb
+          artifacts/**/*.rpm
+          artifacts/**/*.tar.gz
+          artifacts/**/*.dmg
+          artifacts/**/*.exe
+          artifacts/**/*.zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # 문서 배포 (GitHub Pages)
+  deploy-docs:
+    name: Deploy Documentation
+    needs: [create-release]
+    runs-on: ubuntu-22.04
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          cmake \
+          doxygen \
+          graphviz
+
+    - name: Build documentation
+      run: |
+        cmake -B build -DBUILD_DOCS=ON
+        cmake --build build --target docs
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: build/docs/api/html
+        destination_dir: docs/${{ steps.version.outputs.version }}

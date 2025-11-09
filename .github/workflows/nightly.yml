@@ -1,0 +1,101 @@
+name: Nightly Build
+
+on:
+  schedule:
+    # 매일 UTC 00:00 (한국 시간 09:00)
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  # 나이틀리 빌드
+  nightly-build:
+    name: Nightly - ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-22.04, macos-13, windows-2022]
+        include:
+          - os: ubuntu-22.04
+            artifact_name: Linux
+          - os: macos-13
+            artifact_name: macOS
+          - os: windows-2022
+            artifact_name: Windows
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    # Linux 의존성
+    - name: Install dependencies (Linux)
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake ninja-build gcc-12 g++-12 libeigen3-dev
+
+    # macOS 의존성
+    - name: Install dependencies (macOS)
+      if: runner.os == 'macOS'
+      run: brew install cmake ninja eigen
+
+    # Windows 의존성
+    - name: Setup vcpkg (Windows)
+      if: runner.os == 'Windows'
+      uses: lukka/run-vcpkg@v11
+      with:
+        vcpkgGitCommitId: 'a42af01b72c28a8e1d7b48107b33e4f286a55ef6'
+
+    - name: Install dependencies (Windows)
+      if: runner.os == 'Windows'
+      run: vcpkg install eigen3:x64-windows
+
+    # 빌드
+    - name: Configure and Build
+      run: |
+        cmake -B build -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
+        cmake --build build --config ${{ env.BUILD_TYPE }} -j
+
+    # 아티팩트 업로드
+    - name: Upload build
+      uses: actions/upload-artifact@v3
+      with:
+        name: nightly-${{ matrix.artifact_name }}
+        path: build/bin/
+        retention-days: 7
+
+  # 나이틀리 빌드 알림 (실패 시)
+  notify-failure:
+    name: Notify on Failure
+    needs: [nightly-build]
+    runs-on: ubuntu-latest
+    if: failure()
+
+    steps:
+    - name: Create issue on failure
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const title = `Nightly build failed - ${new Date().toISOString().split('T')[0]}`;
+          const body = `The nightly build has failed. Please check the [workflow run](${context.payload.repository.html_url}/actions/runs/${context.runId}).`;
+
+          // 기존 이슈 검색
+          const issues = await github.rest.issues.listForRepo({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            state: 'open',
+            labels: 'nightly-build-failure'
+          });
+
+          // 동일한 이슈가 없으면 생성
+          if (issues.data.length === 0) {
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: title,
+              body: body,
+              labels: ['nightly-build-failure', 'bug']
+            });
+          }
