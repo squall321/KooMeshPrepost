@@ -683,3 +683,23 @@ target_include_directories(test_mesh_to_vtk
 
 add_test(NAME MeshToVTKTests COMMAND test_mesh_to_vtk)
 set_tests_properties(MeshToVTKTests PROPERTIES TIMEOUT 60)
+
+# ActorManager tests (Phase 58)
+add_executable(test_actor_manager
+    unit/visualization/test_actor_manager.cpp
+)
+
+target_link_libraries(test_actor_manager
+    PRIVATE
+        koomesh_lib
+        GTest::GTest
+        GTest::Main
+)
+
+target_include_directories(test_actor_manager
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_test(NAME ActorManagerTests COMMAND test_actor_manager)
+set_tests_properties(ActorManagerTests PROPERTIES TIMEOUT 60)
