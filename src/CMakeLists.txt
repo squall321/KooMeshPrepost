@@ -105,17 +105,10 @@ set(VISUALIZATION_HEADERS
 # Selection module
 set(SELECTION_SOURCES
     selection/SelectionManager.cpp
-    selection/Octree.cpp
-    selection/RTree.cpp
-    selection/KdTree.cpp
-    selection/UniformGrid.cpp
-    selection/SpatialIndexFactory.cpp
 )
 
 set(SELECTION_HEADERS
-    ${CMAKE_SOURCE_DIR}/include/selection/ISpatialIndex.h
     ${CMAKE_SOURCE_DIR}/include/selection/SelectionManager.h
-    ${CMAKE_SOURCE_DIR}/include/selection/Octree.h
 )
 
 # UI module
@@ -172,11 +165,11 @@ if(VTK_FOUND)
     )
 endif()
 
-# Selection 모듈 (TODO: Implement in later phases)
-# target_sources(koomesh_lib PRIVATE
-#     ${SELECTION_SOURCES}
-#     ${SELECTION_HEADERS}
-# )
+# Selection 모듈
+target_sources(koomesh_lib PRIVATE
+    ${SELECTION_SOURCES}
+    ${SELECTION_HEADERS}
+)
 
 # UI 모듈 (Qt 사용 가능한 경우만)
 if(Qt6_FOUND)

@@ -520,6 +520,26 @@ target_include_directories(test_spatial_query_optimizer
 add_test(NAME SpatialQueryOptimizerTests COMMAND test_spatial_query_optimizer)
 set_tests_properties(SpatialQueryOptimizerTests PROPERTIES TIMEOUT 120)
 
+# Selection Manager 테스트 (Phase 51)
+add_executable(test_selection_manager
+    unit/selection/test_selection_manager.cpp
+)
+
+target_link_libraries(test_selection_manager
+    PRIVATE
+        koomesh_lib
+        GTest::GTest
+        GTest::Main
+)
+
+target_include_directories(test_selection_manager
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_test(NAME SelectionManagerTests COMMAND test_selection_manager)
+set_tests_properties(SelectionManagerTests PROPERTIES TIMEOUT 120)
+
 # 향후 추가될 테스트들 (현재는 주석 처리)
 # add_executable(test_mesh
 #     unit/test_mesh.cpp
