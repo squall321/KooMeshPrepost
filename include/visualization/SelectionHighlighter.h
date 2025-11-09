@@ -318,40 +318,77 @@ private:
 #else // !KOOMESH_HAS_VTK
 
 // Stub implementation when VTK is not available
+// Provides selection and style management without rendering
 class SelectionHighlighter {
 public:
-    SelectionHighlighter() {}
+    SelectionHighlighter() : m_visible(true) {}
     ~SelectionHighlighter() {}
 
-    void setSelectedElements(const core::Mesh&, const std::vector<core::ElementId>&) {}
-    void addToSelection(const core::Mesh&, const std::vector<core::ElementId>&) {}
-    void removeFromSelection(const std::vector<core::ElementId>&) {}
-    void clearSelection() {}
-    std::set<core::ElementId> getSelectedElements() const { return {}; }
-    bool isSelected(core::ElementId) const { return false; }
-    size_t getSelectionCount() const { return 0; }
+    void setSelectedElements(const core::Mesh&, const std::vector<core::ElementId>& elementIds) {
+        m_selectedElements.clear();
+        m_selectedElements.insert(elementIds.begin(), elementIds.end());
+    }
 
-    void setHighlightStyle(const SelectionHighlightStyle&) {}
-    SelectionHighlightStyle getHighlightStyle() const { return SelectionHighlightStyle(); }
-    void setHighlightColor(double, double, double) {}
-    void setEdgeColor(double, double, double) {}
-    void setOpacity(double) {}
-    void setLineWidth(double) {}
-    void setHighlightMode(HighlightMode) {}
+    void addToSelection(const core::Mesh&, const std::vector<core::ElementId>& elementIds) {
+        m_selectedElements.insert(elementIds.begin(), elementIds.end());
+    }
+
+    void removeFromSelection(const std::vector<core::ElementId>& elementIds) {
+        for (const auto& id : elementIds) {
+            m_selectedElements.erase(id);
+        }
+    }
+
+    void clearSelection() { m_selectedElements.clear(); }
+
+    const std::set<core::ElementId>& getSelectedElements() const { return m_selectedElements; }
+
+    bool isSelected(core::ElementId elementId) const {
+        return m_selectedElements.find(elementId) != m_selectedElements.end();
+    }
+
+    size_t getSelectionCount() const { return m_selectedElements.size(); }
+
+    void setHighlightStyle(const SelectionHighlightStyle& style) { m_style = style; }
+    const SelectionHighlightStyle& getHighlightStyle() const { return m_style; }
+
+    void setHighlightColor(double r, double g, double b) {
+        m_style.color[0] = r;
+        m_style.color[1] = g;
+        m_style.color[2] = b;
+    }
+
+    void setEdgeColor(double r, double g, double b) {
+        m_style.edgeColor[0] = r;
+        m_style.edgeColor[1] = g;
+        m_style.edgeColor[2] = b;
+    }
+
+    void setOpacity(double opacity) {
+        m_style.opacity = std::max(0.0, std::min(1.0, opacity));
+    }
+
+    void setLineWidth(double width) { m_style.lineWidth = width; }
+    void setHighlightMode(HighlightMode mode) { m_style.mode = mode; }
 
     void* getHighlightActor() const { return nullptr; }
     void* getEdgeActor() const { return nullptr; }
     void addToRenderer(void*) {}
     void removeFromRenderer(void*) {}
     bool isAddedToRenderer() const { return false; }
-    void setVisible(bool) {}
-    bool isVisible() const { return false; }
+    void setVisible(bool visible) { m_visible = visible; }
+    bool isVisible() const { return m_visible; }
 
-    void setPulseAnimation(bool) {}
+    void setPulseAnimation(bool enable) { m_style.enablePulse = enable; }
     void updateAnimation(double) {}
 
     void updateGeometry(const core::Mesh&) {}
     void updateProperties() {}
+
+private:
+    std::set<core::ElementId> m_selectedElements;
+    SelectionHighlightStyle m_style;
+    bool m_visible;
 };
 
 #endif // KOOMESH_HAS_VTK
