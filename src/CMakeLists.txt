@@ -30,12 +30,14 @@ set(CORE_HEADERS
 # I/O module
 set(IO_SOURCES
     io/FileIO.cpp
+    io/MemoryMappedFile.cpp
 )
 
 set(IO_HEADERS
     ${CMAKE_SOURCE_DIR}/include/io/FileIOException.h
     ${CMAKE_SOURCE_DIR}/include/io/IFileReader.h
     ${CMAKE_SOURCE_DIR}/include/io/IFileWriter.h
+    ${CMAKE_SOURCE_DIR}/include/io/MemoryMappedFile.h
 )
 
 # Visualization module

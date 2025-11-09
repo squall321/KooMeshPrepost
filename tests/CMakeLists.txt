@@ -240,6 +240,26 @@ target_include_directories(test_file_io_interfaces
 add_test(NAME FileIOInterfacesTests COMMAND test_file_io_interfaces)
 set_tests_properties(FileIOInterfacesTests PROPERTIES TIMEOUT 60)
 
+# Memory Mapped File 테스트
+add_executable(test_memory_mapped_file
+    unit/io/test_memory_mapped_file.cpp
+)
+
+target_link_libraries(test_memory_mapped_file
+    PRIVATE
+        koomesh_lib
+        GTest::GTest
+        GTest::Main
+)
+
+target_include_directories(test_memory_mapped_file
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_test(NAME MemoryMappedFileTests COMMAND test_memory_mapped_file)
+set_tests_properties(MemoryMappedFileTests PROPERTIES TIMEOUT 60)
+
 # 향후 추가될 테스트들 (현재는 주석 처리)
 # add_executable(test_mesh
 #     unit/test_mesh.cpp
