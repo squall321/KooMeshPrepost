@@ -260,6 +260,26 @@ target_include_directories(test_memory_mapped_file
 add_test(NAME MemoryMappedFileTests COMMAND test_memory_mapped_file)
 set_tests_properties(MemoryMappedFileTests PROPERTIES TIMEOUT 60)
 
+# LS-DYNA Keyword Parser 테스트
+add_executable(test_lsdyna_keyword_parser
+    unit/io/test_lsdyna_keyword_parser.cpp
+)
+
+target_link_libraries(test_lsdyna_keyword_parser
+    PRIVATE
+        koomesh_lib
+        GTest::GTest
+        GTest::Main
+)
+
+target_include_directories(test_lsdyna_keyword_parser
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_test(NAME LSDynaKeywordParserTests COMMAND test_lsdyna_keyword_parser)
+set_tests_properties(LSDynaKeywordParserTests PROPERTIES TIMEOUT 60)
+
 # 향후 추가될 테스트들 (현재는 주석 처리)
 # add_executable(test_mesh
 #     unit/test_mesh.cpp
