@@ -763,3 +763,23 @@ target_include_directories(test_selection_highlighter
 
 add_test(NAME SelectionHighlighterTests COMMAND test_selection_highlighter)
 set_tests_properties(SelectionHighlighterTests PROPERTIES TIMEOUT 60)
+
+# AreaSelector tests (Phase 62)
+add_executable(test_area_selector
+    visualization/test_AreaSelector.cpp
+)
+
+target_link_libraries(test_area_selector
+    PRIVATE
+        koomesh_lib
+        GTest::GTest
+        GTest::Main
+)
+
+target_include_directories(test_area_selector
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_test(NAME AreaSelectorTests COMMAND test_area_selector)
+set_tests_properties(AreaSelectorTests PROPERTIES TIMEOUT 60)
