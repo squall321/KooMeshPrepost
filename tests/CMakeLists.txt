@@ -140,6 +140,46 @@ target_include_directories(test_additional_elements
 add_test(NAME AdditionalElementsTests COMMAND test_additional_elements)
 set_tests_properties(AdditionalElementsTests PROPERTIES TIMEOUT 30)
 
+# Part 테스트
+add_executable(test_part
+    unit/test_part.cpp
+)
+
+target_link_libraries(test_part
+    PRIVATE
+        koomesh_lib
+        GTest::GTest
+        GTest::Main
+)
+
+target_include_directories(test_part
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_test(NAME PartTests COMMAND test_part)
+set_tests_properties(PartTests PROPERTIES TIMEOUT 30)
+
+# Group 및 GroupManager 테스트
+add_executable(test_group
+    unit/test_group.cpp
+)
+
+target_link_libraries(test_group
+    PRIVATE
+        koomesh_lib
+        GTest::GTest
+        GTest::Main
+)
+
+target_include_directories(test_group
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_test(NAME GroupTests COMMAND test_group)
+set_tests_properties(GroupTests PROPERTIES TIMEOUT 30)
+
 # 향후 추가될 테스트들 (현재는 주석 처리)
 # add_executable(test_mesh
 #     unit/test_mesh.cpp

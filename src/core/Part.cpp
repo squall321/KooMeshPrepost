@@ -10,7 +10,9 @@ namespace core {
 Part::Part(PartId id, const std::string& name)
     : m_id(id)
     , m_name(name)
-    , m_material() {
+    , m_material()
+    , m_color()
+    , m_enabled(true) {
 }
 
 // ======================================================================
