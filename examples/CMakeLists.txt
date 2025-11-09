@@ -41,6 +41,16 @@ foreach(example ${EXAMPLES})
     endif()
 endforeach()
 
+# Spatial Index Demo (Phase 50)
+add_executable(spatial_index_demo
+    10_spatial_indexes/spatial_index_demo.cpp
+)
+
+target_link_libraries(spatial_index_demo
+    PRIVATE
+        koomesh_lib
+)
+
 # 샘플 데이터 파일 설치
 install(DIRECTORY sample_data/
     DESTINATION share/koomesh/examples/sample_data
