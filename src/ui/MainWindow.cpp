@@ -18,6 +18,8 @@
 #include "io/LSDynaFileWriter.h"
 #include "io/VTKFileWriter.h"
 #include "io/STLFileWriter.h"
+#include "selection/SelectionManager.h"
+#include "core/GroupManager.h"
 
 #include <QApplication>
 #include <QMenuBar>
@@ -68,6 +70,10 @@ MainWindow::MainWindow(QWidget* parent)
     m_lsdynaWriter = std::make_unique<io::LSDynaFileWriter>();
     m_vtkWriter = std::make_unique<io::VTKFileWriter>();
     m_stlWriter = std::make_unique<io::STLFileWriter>();
+
+    // Initialize selection and group managers (Phase 77)
+    m_selectionManager = std::make_unique<selection::SelectionManager>();
+    m_groupManager = std::make_unique<core::GroupManager>();
 
     // Setup complete UI
     setupUI();
@@ -171,6 +177,12 @@ void MainWindow::setMesh(core::Mesh* mesh) {
     // Update panels
     if (m_partsPanel) {
         m_partsPanel->setMesh(mesh);
+    }
+
+    // Phase 77: Update selection manager with new mesh
+    if (m_mesh && m_selectionManager) {
+        m_selectionManager->setMesh(*m_mesh);
+        m_selectionManager->enableHistory(50);  // Enable undo/redo with 50 levels
     }
 
     // Update viewport
@@ -422,13 +434,35 @@ void MainWindow::onFileExit() {
 // ============================================================================
 
 void MainWindow::onEditUndo() {
-    // TODO: Implement undo
-    showStatusMessage("Undo not yet implemented", 2000);
+    // Phase 77: Implement undo using SelectionManager
+    if (!m_selectionManager) {
+        return;
+    }
+
+    if (m_selectionManager->undo()) {
+        auto& selection = m_selectionManager->getSelection();
+        std::vector<core::ElementId> selectedIds(selection.begin(), selection.end());
+        emit selectionChanged(selectedIds);
+        showStatusMessage(QString("Undo (Selection: %1 elements)").arg(selection.size()), 2000);
+    } else {
+        showStatusMessage("Nothing to undo", 2000);
+    }
 }
 
 void MainWindow::onEditRedo() {
-    // TODO: Implement redo
-    showStatusMessage("Redo not yet implemented", 2000);
+    // Phase 77: Implement redo using SelectionManager
+    if (!m_selectionManager) {
+        return;
+    }
+
+    if (m_selectionManager->redo()) {
+        auto& selection = m_selectionManager->getSelection();
+        std::vector<core::ElementId> selectedIds(selection.begin(), selection.end());
+        emit selectionChanged(selectedIds);
+        showStatusMessage(QString("Redo (Selection: %1 elements)").arg(selection.size()), 2000);
+    } else {
+        showStatusMessage("Nothing to redo", 2000);
+    }
 }
 
 void MainWindow::onEditCut() {
@@ -444,24 +478,79 @@ void MainWindow::onEditPaste() {
 }
 
 void MainWindow::onEditDelete() {
-    // TODO: Implement delete selected elements
-    setModified(true);
-    showStatusMessage("Deleted selected elements", 2000);
+    // Phase 77: Delete selected elements
+    if (!m_mesh || !m_selectionManager) {
+        return;
+    }
+
+    auto& selection = m_selectionManager->getSelection();
+    if (selection.empty()) {
+        QMessageBox::information(this, "Delete", "No elements selected");
+        return;
+    }
+
+    // Confirm deletion
+    QMessageBox::StandardButton reply = QMessageBox::question(
+        this,
+        "Delete Elements",
+        QString("Are you sure you want to delete %1 selected elements?\n"
+                "This operation cannot be undone.").arg(selection.size()),
+        QMessageBox::Yes | QMessageBox::No
+    );
+
+    if (reply == QMessageBox::Yes) {
+        // Delete elements from mesh
+        size_t deletedCount = 0;
+        for (core::ElementId elemId : selection) {
+            if (m_mesh->removeElement(elemId)) {
+                deletedCount++;
+            }
+        }
+
+        // Clear selection after deletion
+        m_selectionManager->clearSelection();
+        emit selectionCleared();
+
+        setModified(true);
+        showStatusMessage(QString("Deleted %1 elements").arg(deletedCount), 3000);
+
+        // Update viewport
+        updateViewport();
+    }
 }
 
 void MainWindow::onEditSelectAll() {
-    // TODO: Select all elements
-    showStatusMessage("Selected all elements", 2000);
+    // Phase 77: Select all elements
+    if (!m_selectionManager) {
+        return;
+    }
+
+    m_selectionManager->selectAll();
+    auto& selection = m_selectionManager->getSelection();
+    std::vector<core::ElementId> selectedIds(selection.begin(), selection.end());
+    emit selectionChanged(selectedIds);
+    showStatusMessage(QString("Selected all elements (%1)").arg(selection.size()), 2000);
 }
 
 void MainWindow::onEditDeselectAll() {
+    if (m_selectionManager) {
+        m_selectionManager->clearSelection();
+    }
     emit selectionCleared();
     showStatusMessage("Selection cleared", 2000);
 }
 
 void MainWindow::onEditInvertSelection() {
-    // TODO: Invert selection
-    showStatusMessage("Inverted selection", 2000);
+    // Phase 77: Invert selection
+    if (!m_selectionManager) {
+        return;
+    }
+
+    m_selectionManager->invertSelection();
+    auto& selection = m_selectionManager->getSelection();
+    std::vector<core::ElementId> selectedIds(selection.begin(), selection.end());
+    emit selectionChanged(selectedIds);
+    showStatusMessage(QString("Inverted selection (%1 elements)").arg(selection.size()), 2000);
 }
 
 // ============================================================================
@@ -547,8 +636,60 @@ void MainWindow::onToolsMeasureAngle() {
 }
 
 void MainWindow::onToolsCreateGroup() {
-    // TODO: Create group from selection
-    showStatusMessage("Create group from selection", 2000);
+    // Phase 77: Create group from selection
+    if (!m_selectionManager || !m_groupManager) {
+        return;
+    }
+
+    auto& selection = m_selectionManager->getSelection();
+    if (selection.empty()) {
+        QMessageBox::information(this, "Create Group", "No elements selected");
+        return;
+    }
+
+    // Ask user for group name
+    bool ok;
+    QString groupName = QInputDialog::getText(
+        this,
+        "Create Group",
+        QString("Enter group name (Selected: %1 elements):").arg(selection.size()),
+        QLineEdit::Normal,
+        QString(),
+        &ok
+    );
+
+    if (!ok || groupName.isEmpty()) {
+        return;  // User cancelled or entered empty name
+    }
+
+    std::string groupNameStd = groupName.toStdString();
+
+    // Check if group already exists
+    if (m_groupManager->hasGroup(groupNameStd)) {
+        QMessageBox::warning(this, "Create Group",
+            QString("Group '%1' already exists").arg(groupName));
+        return;
+    }
+
+    // Create group
+    if (!m_groupManager->createGroup(groupNameStd)) {
+        QMessageBox::critical(this, "Create Group",
+            QString("Failed to create group '%1'").arg(groupName));
+        return;
+    }
+
+    // Add selected elements to group
+    Group* group = m_groupManager->getGroup(groupNameStd);
+    if (group) {
+        for (core::ElementId elemId : selection) {
+            group->addElement(elemId);
+        }
+
+        showStatusMessage(QString("Created group '%1' with %2 elements")
+            .arg(groupName).arg(selection.size()), 3000);
+
+        setModified(true);
+    }
 }
 
 void MainWindow::onToolsSettings() {

@@ -39,6 +39,7 @@ namespace koomesh {
 
 namespace core {
 class Mesh;
+class GroupManager;
 }
 
 namespace visualization {
@@ -50,6 +51,10 @@ class AsyncFileLoader;
 class LSDynaFileWriter;
 class VTKFileWriter;
 class STLFileWriter;
+}
+
+namespace selection {
+class SelectionManager;
 }
 
 namespace ui {
@@ -483,6 +488,13 @@ private:
     std::unique_ptr<io::VTKFileWriter> m_vtkWriter;
     std::unique_ptr<io::STLFileWriter> m_stlWriter;
     ProgressDialog* m_progressDialog;
+
+    // ========================================================================
+    // Selection and Groups (Phase 77)
+    // ========================================================================
+
+    std::unique_ptr<selection::SelectionManager> m_selectionManager;
+    std::unique_ptr<core::GroupManager> m_groupManager;
 };
 
 } // namespace ui
