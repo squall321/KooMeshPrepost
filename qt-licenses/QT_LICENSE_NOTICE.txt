@@ -1,0 +1,88 @@
+================================================================================
+Qt License Notice
+================================================================================
+
+KooMeshPrepost uses Qt6 under the GNU Lesser General Public License v3.0 (LGPL v3).
+
+Qt Version: 6.5 or later
+License: LGPL v3.0 with Qt LGPL Exception
+Website: https://www.qt.io/
+
+================================================================================
+Qt Components Used
+================================================================================
+
+The following Qt modules are used:
+- Qt6::Core           (Core framework functionality)
+- Qt6::Widgets        (UI widgets and controls)
+- Qt6::OpenGLWidgets  (OpenGL integration with widgets)
+
+================================================================================
+LGPL v3 Compliance
+================================================================================
+
+Qt is used as a dynamically linked shared library in accordance with LGPL v3.
+
+You are free to:
+- Use this software commercially
+- Modify and distribute this software
+- Use this software in proprietary applications
+
+You must:
+- Preserve this license notice
+- Allow users to replace Qt libraries with compatible versions
+- Provide access to the source code or means to relink
+
+For complete LGPL v3 requirements, see LICENSE.LGPL3
+
+================================================================================
+Qt Licensing Options
+================================================================================
+
+Qt is dual-licensed:
+
+1. LGPL v3 (Open Source)
+   - Free for all uses
+   - Requires compliance with LGPL terms
+   - Used by KooMeshPrepost
+
+2. Commercial License (Optional)
+   - Additional support and services
+   - No LGPL obligations
+   - Not required for KooMeshPrepost
+
+================================================================================
+Source Code
+================================================================================
+
+Qt Source Code:
+https://code.qt.io/cgit/qt/
+
+Qt Downloads:
+https://www.qt.io/download-open-source
+
+KooMeshPrepost Source:
+https://github.com/squall321/KooMeshPrepost
+
+================================================================================
+Copyright Notice
+================================================================================
+
+Qt is Copyright (C) The Qt Company Ltd.
+
+The Qt Toolkit is licensed under the GNU Lesser General Public License v3.0.
+
+For the full license text, see LICENSE.LGPL3 in this directory or visit:
+https://www.gnu.org/licenses/lgpl-3.0.html
+
+================================================================================
+Additional Information
+================================================================================
+
+For detailed LGPL compliance information for KooMeshPrepost, see:
+docs/QT_LGPL_COMPLIANCE.md
+
+For Qt licensing FAQs:
+https://www.qt.io/licensing/
+
+================================================================================

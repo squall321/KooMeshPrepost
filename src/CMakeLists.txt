@@ -230,13 +230,19 @@ if(VTK_FOUND)
     )
 endif()
 
-# Qt 링크
+# Qt linking (LGPL v3 compliant - dynamic linking)
+# Qt libraries are linked dynamically (shared libraries)
+# This allows users to replace Qt libraries as required by LGPL v3
+# See docs/QT_LGPL_COMPLIANCE.md for details
 if(Qt6_FOUND)
     target_link_libraries(koomesh_lib PRIVATE
         Qt6::Core
         Qt6::Widgets
         Qt6::OpenGLWidgets
     )
+
+    # Note: Qt is always dynamically linked (CMake default for imported targets)
+    # POSITION_INDEPENDENT_CODE is set later for all of koomesh_lib
 endif()
 
 # ============================================================================

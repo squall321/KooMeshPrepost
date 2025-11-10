@@ -1,0 +1,51 @@
+                   GNU LESSER GENERAL PUBLIC LICENSE
+                       Version 3, 29 June 2007
+
+Qt is licensed under the GNU Lesser General Public License version 3.
+
+The complete text of the LGPL v3 license can be found at:
+https://www.gnu.org/licenses/lgpl-3.0.txt
+
+A local copy should be obtained from the Qt installation or from the
+above URL.
+
+For the Qt-specific LGPL exception, see LGPL_EXCEPTION.txt
+
+================================================================================
+Summary of LGPL v3 (Not Legal Advice)
+================================================================================
+
+The LGPL v3 allows:
+- Free use of the library in any application (commercial or open-source)
+- Dynamic linking without source code disclosure of the application
+- Distribution of binaries using the library
+
+The LGPL v3 requires:
+- The library must remain under LGPL (can't relicense)
+- Users must be able to replace the library with modified versions
+- Modifications to the library itself must be released under LGPL
+- License and copyright notices must be preserved
+- Source code or object files must be available for relinking
+
+For Qt specifically:
+- Qt is used as a shared/dynamic library (DLL/SO)
+- Application code can be proprietary/closed-source
+- No need to disclose application source code
+- Must allow users to swap Qt libraries
+
+================================================================================
+Obtaining the Full License Text
+================================================================================
+
+Option 1: Download from GNU
+wget https://www.gnu.org/licenses/lgpl-3.0.txt
+
+Option 2: From Qt Installation
+Qt installations include the full LGPL v3 text in:
+<qt-install-dir>/Licenses/LICENSE.LGPLv3
+
+Option 3: From Qt Source
+git clone https://code.qt.io/qt/qt5.git
+# License files in qt5/LICENSE.*
+
+================================================================================
