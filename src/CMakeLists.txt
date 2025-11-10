@@ -135,12 +135,12 @@ set(SELECTION_HEADERS
 # UI module (Phase 71-80)
 set(UI_SOURCES
     ui/MainWindow.cpp       # Phase 71 (complete)
-    ui/PartsPanel.cpp       # Phase 72 (stub)
-    ui/GroupsPanel.cpp      # Phase 73 (stub)
-    ui/PropertiesPanel.cpp  # Phase 74 (stub)
-    ui/SelectionToolBar.cpp # Phase 75 (stub)
-    # Phase 77: To be implemented
-    # ui/ProgressDialog.cpp
+    ui/PartsPanel.cpp       # Phase 72 (complete)
+    ui/GroupsPanel.cpp      # Phase 73 (complete)
+    ui/PropertiesPanel.cpp  # Phase 74 (complete)
+    ui/SelectionToolBar.cpp # Phase 75 (complete)
+    ui/ProgressDialog.cpp   # Phase 76 (complete)
+    # Phase 77-80: Additional dialogs to be implemented
     # ui/SettingsDialog.cpp
 )
 
@@ -150,8 +150,8 @@ set(UI_HEADERS
     ${CMAKE_SOURCE_DIR}/include/ui/GroupsPanel.h
     ${CMAKE_SOURCE_DIR}/include/ui/PropertiesPanel.h
     ${CMAKE_SOURCE_DIR}/include/ui/SelectionToolBar.h
-    # Phase 77: To be implemented
-    # ${CMAKE_SOURCE_DIR}/include/ui/ProgressDialog.h
+    ${CMAKE_SOURCE_DIR}/include/ui/ProgressDialog.h
+    # Phase 77-80: Additional dialogs
     # ${CMAKE_SOURCE_DIR}/include/ui/SettingsDialog.h
 )
 

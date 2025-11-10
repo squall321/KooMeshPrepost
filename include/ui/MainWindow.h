@@ -45,6 +45,13 @@ namespace visualization {
 class VTKRenderer;
 }
 
+namespace io {
+class AsyncFileLoader;
+class LSDynaFileWriter;
+class VTKFileWriter;
+class STLFileWriter;
+}
+
 namespace ui {
 
 // Forward declarations for UI components
@@ -52,6 +59,7 @@ class PartsPanel;
 class GroupsPanel;
 class PropertiesPanel;
 class SelectionToolBar;
+class ProgressDialog;
 
 /**
  * @brief Main application window
@@ -465,6 +473,16 @@ private:
     QTimer* m_updateTimer;
     int m_frameCount;
     qint64 m_lastFpsUpdate;
+
+    // ========================================================================
+    // File I/O (Phase 76)
+    // ========================================================================
+
+    std::unique_ptr<io::AsyncFileLoader> m_fileLoader;
+    std::unique_ptr<io::LSDynaFileWriter> m_lsdynaWriter;
+    std::unique_ptr<io::VTKFileWriter> m_vtkWriter;
+    std::unique_ptr<io::STLFileWriter> m_stlWriter;
+    ProgressDialog* m_progressDialog;
 };
 
 } // namespace ui

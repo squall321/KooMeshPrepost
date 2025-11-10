@@ -11,8 +11,13 @@
 #include "ui/GroupsPanel.h"
 #include "ui/PropertiesPanel.h"
 #include "ui/SelectionToolBar.h"
+#include "ui/ProgressDialog.h"
 #include "core/Mesh.h"
 #include "visualization/VTKRenderer.h"
+#include "io/AsyncFileLoader.h"
+#include "io/LSDynaFileWriter.h"
+#include "io/VTKFileWriter.h"
+#include "io/STLFileWriter.h"
 
 #include <QApplication>
 #include <QMenuBar>
@@ -49,6 +54,7 @@ MainWindow::MainWindow(QWidget* parent)
     , m_modified(false)
     , m_frameCount(0)
     , m_lastFpsUpdate(0)
+    , m_progressDialog(nullptr)
 {
     // Set window properties
     setWindowTitle("KooMeshPrepost");
@@ -56,6 +62,12 @@ MainWindow::MainWindow(QWidget* parent)
 
     // Initialize renderer
     m_renderer = std::make_unique<visualization::VTKRenderer>();
+
+    // Initialize file I/O components (Phase 76)
+    m_fileLoader = std::make_unique<io::AsyncFileLoader>();
+    m_lsdynaWriter = std::make_unique<io::LSDynaFileWriter>();
+    m_vtkWriter = std::make_unique<io::VTKFileWriter>();
+    m_stlWriter = std::make_unique<io::STLFileWriter>();
 
     // Setup complete UI
     setupUI();
@@ -81,22 +93,76 @@ MainWindow::~MainWindow() {
 // ============================================================================
 
 void MainWindow::loadMeshFile(const QString& filepath) {
-    if (filepath.isEmpty()) {
+    if (filepath.isEmpty() || !m_mesh || !m_fileLoader) {
         return;
     }
 
-    // TODO: Implement async file loading with progress dialog
+    // Phase 76: Async file loading with progress dialog
     showStatusMessage(QString("Loading %1...").arg(filepath));
 
-    // Add to recent files
-    addRecentFile(filepath);
+    // Create progress dialog
+    if (!m_progressDialog) {
+        m_progressDialog = new ProgressDialog("Loading File", this);
+    }
+    m_progressDialog->reset();
+    m_progressDialog->setStatusMessage(QString("Reading %1...").arg(filepath));
 
-    m_currentFilePath = filepath;
-    setModified(false);
+    // Start async load
+    std::string filepathStd = filepath.toStdString();
+    auto future = m_fileLoader->loadAsync(
+        filepathStd,
+        *m_mesh,
+        [this](double progress, const std::string& message) {
+            // This callback runs in background thread
+            // We need to safely update UI in main thread
+            QMetaObject::invokeMethod(this, [this, progress, message]() {
+                if (m_progressDialog) {
+                    m_progressDialog->setProgress(progress);
+                    m_progressDialog->setStatusMessage(QString::fromStdString(message));
+                }
+            }, Qt::QueuedConnection);
 
-    emit fileOpened(filepath);
+            // Check if user cancelled
+            return m_progressDialog ? !m_progressDialog->wasCancelled() : true;
+        });
 
-    showStatusMessage(QString("Loaded %1").arg(filepath), 3000);
+    // Connect cancel button to async loader
+    if (m_progressDialog) {
+        connect(m_progressDialog, &ProgressDialog::cancelRequested,
+                m_fileLoader.get(), &io::AsyncFileLoader::cancel);
+    }
+
+    // Show progress dialog (blocks until loading completes or cancelled)
+    m_progressDialog->exec();
+
+    // Wait for completion and get result
+    auto result = future.get();
+
+    if (result.success) {
+        // Success
+        addRecentFile(filepath);
+        m_currentFilePath = filepath;
+        setModified(false);
+
+        emit fileOpened(filepath);
+
+        showStatusMessage(QString("Loaded %1 (%2 nodes, %3 elements) in %4s")
+            .arg(filepath)
+            .arg(result.readResult.nodesRead)
+            .arg(result.readResult.elementsRead)
+            .arg(result.elapsedSeconds, 0, 'f', 2), 5000);
+
+        // Update viewport
+        updateViewport();
+    } else {
+        // Failed or cancelled
+        QString errorMsg = m_progressDialog->wasCancelled()
+            ? "Loading cancelled by user"
+            : QString::fromStdString(result.message);
+
+        QMessageBox::warning(this, "Load Failed", errorMsg);
+        showStatusMessage("Load failed", 3000);
+    }
 }
 
 void MainWindow::setMesh(core::Mesh* mesh) {
@@ -204,11 +270,48 @@ void MainWindow::onFileOpen() {
 void MainWindow::onFileSave() {
     if (m_currentFilePath.isEmpty()) {
         onFileSaveAs();
-    } else {
-        // TODO: Implement actual save
-        setModified(false);
-        showStatusMessage(QString("Saved %1").arg(m_currentFilePath), 2000);
-        emit fileSaved(m_currentFilePath);
+        return;
+    }
+
+    // Phase 76: Implement actual save using LSDynaFileWriter
+    if (!m_mesh || !m_lsdynaWriter) {
+        QMessageBox::warning(this, "Save Error", "No mesh to save");
+        return;
+    }
+
+    showStatusMessage(QString("Saving %1...").arg(m_currentFilePath));
+
+    try {
+        std::string filepathStd = m_currentFilePath.toStdString();
+
+        // Configure write options
+        io::LSDynaWriteOptions options;
+        options.format = io::KeywordFormat::FREE;
+        options.writeComments = true;
+        options.writeHeader = true;
+        options.writeEnd = true;
+
+        // Write file
+        auto result = m_lsdynaWriter->write(filepathStd, *m_mesh, options);
+
+        if (result.success) {
+            setModified(false);
+            showStatusMessage(QString("Saved %1 (%2 nodes, %3 elements)")
+                .arg(m_currentFilePath)
+                .arg(result.nodesWritten)
+                .arg(result.elementsWritten), 3000);
+
+            emit fileSaved(m_currentFilePath);
+        } else {
+            QString errorMsg = QString::fromStdString(result.message);
+            QMessageBox::critical(this, "Save Failed",
+                QString("Failed to save file:\n%1").arg(errorMsg));
+            showStatusMessage("Save failed", 3000);
+        }
+    } catch (const std::exception& e) {
+        QMessageBox::critical(this, "Save Error",
+            QString("Error saving file:\n%1").arg(e.what()));
+        showStatusMessage("Save error", 3000);
     }
 }
 
@@ -228,6 +331,11 @@ void MainWindow::onFileSaveAs() {
 }
 
 void MainWindow::onFileExport() {
+    if (!m_mesh) {
+        QMessageBox::warning(this, "Export Error", "No mesh to export");
+        return;
+    }
+
     QString filters = "VTK Files (*.vtk);;STL Files (*.stl);;All Files (*)";
     QString filepath = QFileDialog::getSaveFileName(
         this,
@@ -236,10 +344,55 @@ void MainWindow::onFileExport() {
         filters
     );
 
-    if (!filepath.isEmpty()) {
-        // TODO: Implement export
-        showStatusMessage(QString("Exported to %1").arg(filepath), 2000);
-        emit fileExported(filepath);
+    if (filepath.isEmpty()) {
+        return;
+    }
+
+    // Phase 76: Implement export using VTK/STL writers
+    showStatusMessage(QString("Exporting to %1...").arg(filepath));
+
+    try {
+        std::string filepathStd = filepath.toStdString();
+        io::WriteResult result;
+
+        // Determine file type from extension
+        if (filepath.endsWith(".vtk", Qt::CaseInsensitive)) {
+            // Export to VTK
+            if (m_vtkWriter) {
+                result = m_vtkWriter->write(filepathStd, *m_mesh);
+            } else {
+                throw std::runtime_error("VTK writer not available");
+            }
+        } else if (filepath.endsWith(".stl", Qt::CaseInsensitive)) {
+            // Export to STL
+            if (m_stlWriter) {
+                result = m_stlWriter->write(filepathStd, *m_mesh);
+            } else {
+                throw std::runtime_error("STL writer not available");
+            }
+        } else {
+            QMessageBox::warning(this, "Export Error",
+                "Unknown file format. Please use .vtk or .stl extension.");
+            return;
+        }
+
+        if (result.success) {
+            showStatusMessage(QString("Exported to %1 (%2 nodes, %3 elements)")
+                .arg(filepath)
+                .arg(result.nodesWritten)
+                .arg(result.elementsWritten), 3000);
+
+            emit fileExported(filepath);
+        } else {
+            QString errorMsg = QString::fromStdString(result.message);
+            QMessageBox::critical(this, "Export Failed",
+                QString("Failed to export file:\n%1").arg(errorMsg));
+            showStatusMessage("Export failed", 3000);
+        }
+    } catch (const std::exception& e) {
+        QMessageBox::critical(this, "Export Error",
+            QString("Error exporting file:\n%1").arg(e.what()));
+        showStatusMessage("Export error", 3000);
     }
 }
 
