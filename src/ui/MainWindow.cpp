@@ -14,6 +14,7 @@
 #include "ui/ProgressDialog.h"
 #include "core/Mesh.h"
 #include "visualization/VTKRenderer.h"
+#include "visualization/CameraController.h"
 #include "io/AsyncFileLoader.h"
 #include "io/LSDynaFileWriter.h"
 #include "io/VTKFileWriter.h"
@@ -200,7 +201,17 @@ void MainWindow::updateViewport() {
     }
 
 #ifdef KOOMESH_HAS_VTK
-    // TODO: Update VTK rendering
+    // Phase 78: Update VTK rendering
+
+    // Lazy initialize camera controller
+    if (!m_cameraController && m_renderer && m_renderer->getVTKRenderer()) {
+        m_cameraController = std::make_unique<visualization::CameraController>(
+            m_renderer->getVTKRenderer()
+        );
+    }
+
+    // Render the scene
+    m_renderer->render();
     m_vtkWidget->update();
 #endif
 }
@@ -558,42 +569,82 @@ void MainWindow::onEditInvertSelection() {
 // ============================================================================
 
 void MainWindow::onViewResetCamera() {
+    // Phase 78: Reset camera using CameraController
+    if (m_cameraController) {
+        m_cameraController->reset();
+        updateViewport();
+        showStatusMessage("Camera reset", 1000);
+    }
     emit viewResetRequested();
-    showStatusMessage("Camera reset", 1000);
 }
 
 void MainWindow::onViewFront() {
-    // TODO: Set front view
+    // Phase 78: Set front view
+    if (m_cameraController) {
+        m_cameraController->setFrontView(true);  // animate = true
+        updateViewport();
+        showStatusMessage("Front view", 1000);
+    }
     emit viewChanged();
 }
 
 void MainWindow::onViewBack() {
-    // TODO: Set back view
+    // Phase 78: Set back view
+    if (m_cameraController) {
+        m_cameraController->setBackView(true);  // animate = true
+        updateViewport();
+        showStatusMessage("Back view", 1000);
+    }
     emit viewChanged();
 }
 
 void MainWindow::onViewTop() {
-    // TODO: Set top view
+    // Phase 78: Set top view
+    if (m_cameraController) {
+        m_cameraController->setTopView(true);  // animate = true
+        updateViewport();
+        showStatusMessage("Top view", 1000);
+    }
     emit viewChanged();
 }
 
 void MainWindow::onViewBottom() {
-    // TODO: Set bottom view
+    // Phase 78: Set bottom view
+    if (m_cameraController) {
+        m_cameraController->setBottomView(true);  // animate = true
+        updateViewport();
+        showStatusMessage("Bottom view", 1000);
+    }
     emit viewChanged();
 }
 
 void MainWindow::onViewLeft() {
-    // TODO: Set left view
+    // Phase 78: Set left view
+    if (m_cameraController) {
+        m_cameraController->setLeftView(true);  // animate = true
+        updateViewport();
+        showStatusMessage("Left view", 1000);
+    }
     emit viewChanged();
 }
 
 void MainWindow::onViewRight() {
-    // TODO: Set right view
+    // Phase 78: Set right view
+    if (m_cameraController) {
+        m_cameraController->setRightView(true);  // animate = true
+        updateViewport();
+        showStatusMessage("Right view", 1000);
+    }
     emit viewChanged();
 }
 
 void MainWindow::onViewIsometric() {
-    // TODO: Set isometric view
+    // Phase 78: Set isometric view
+    if (m_cameraController) {
+        m_cameraController->setIsometricView(true);  // animate = true
+        updateViewport();
+        showStatusMessage("Isometric view", 1000);
+    }
     emit viewChanged();
 }
 

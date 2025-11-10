@@ -44,6 +44,7 @@ class GroupManager;
 
 namespace visualization {
 class VTKRenderer;
+class CameraController;
 }
 
 namespace io {
@@ -464,6 +465,7 @@ private:
 
     core::Mesh* m_mesh;  // Not owned
     std::unique_ptr<visualization::VTKRenderer> m_renderer;
+    std::unique_ptr<visualization::CameraController> m_cameraController;
 
     QString m_currentFilePath;
     bool m_modified;
