@@ -905,6 +905,7 @@ void MainWindow::createMenuBar() {
     connect(m_saveAsAction, &QAction::triggered, this, &MainWindow::onFileSaveAs);
 
     m_exportAction = m_fileMenu->addAction("&Export...");
+    m_exportAction->setShortcut(Qt::CTRL | Qt::Key_E);  // Phase 79: Ctrl+E
     connect(m_exportAction, &QAction::triggered, this, &MainWindow::onFileExport);
 
     m_fileMenu->addSeparator();
@@ -938,6 +939,19 @@ void MainWindow::createMenuBar() {
     m_deselectAllAction->setShortcut(Qt::CTRL | Qt::Key_D);
     connect(m_deselectAllAction, &QAction::triggered, this, &MainWindow::onEditDeselectAll);
 
+    // Phase 79: Add missing Edit actions with shortcuts
+    m_editMenu->addSeparator();
+
+    m_invertSelectionAction = m_editMenu->addAction("&Invert Selection");
+    m_invertSelectionAction->setShortcut(Qt::CTRL | Qt::Key_I);
+    connect(m_invertSelectionAction, &QAction::triggered, this, &MainWindow::onEditInvertSelection);
+
+    m_editMenu->addSeparator();
+
+    m_deleteAction = m_editMenu->addAction("&Delete");
+    m_deleteAction->setShortcut(Qt::Key_Delete);
+    connect(m_deleteAction, &QAction::triggered, this, &MainWindow::onEditDelete);
+
     // View menu
     m_viewMenu = menuBar()->addMenu("&View");
 
@@ -950,13 +964,31 @@ void MainWindow::createMenuBar() {
     m_viewFrontAction->setShortcut(Qt::Key_1);
     connect(m_viewFrontAction, &QAction::triggered, this, &MainWindow::onViewFront);
 
+    m_viewBackAction = m_viewCameraMenu->addAction("&Back");
+    m_viewBackAction->setShortcut(Qt::Key_4);  // Phase 79
+    connect(m_viewBackAction, &QAction::triggered, this, &MainWindow::onViewBack);
+
     m_viewTopAction = m_viewCameraMenu->addAction("&Top");
     m_viewTopAction->setShortcut(Qt::Key_2);
     connect(m_viewTopAction, &QAction::triggered, this, &MainWindow::onViewTop);
 
+    m_viewBottomAction = m_viewCameraMenu->addAction("B&ottom");
+    m_viewBottomAction->setShortcut(Qt::Key_5);  // Phase 79
+    connect(m_viewBottomAction, &QAction::triggered, this, &MainWindow::onViewBottom);
+
     m_viewRightAction = m_viewCameraMenu->addAction("&Right");
     m_viewRightAction->setShortcut(Qt::Key_3);
     connect(m_viewRightAction, &QAction::triggered, this, &MainWindow::onViewRight);
+
+    m_viewLeftAction = m_viewCameraMenu->addAction("&Left");
+    m_viewLeftAction->setShortcut(Qt::Key_6);  // Phase 79
+    connect(m_viewLeftAction, &QAction::triggered, this, &MainWindow::onViewLeft);
+
+    m_viewCameraMenu->addSeparator();
+
+    m_viewIsometricAction = m_viewCameraMenu->addAction("&Isometric");
+    m_viewIsometricAction->setShortcut(Qt::Key_7);  // Phase 79
+    connect(m_viewIsometricAction, &QAction::triggered, this, &MainWindow::onViewIsometric);
 
     m_viewMenu->addSeparator();
 
