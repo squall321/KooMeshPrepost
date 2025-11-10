@@ -3,6 +3,7 @@
 #include "core/Mesh.h"
 #include <fstream>
 #include <sstream>
+#include <thread>
 
 #ifdef _WIN32
     #define unlink _unlink

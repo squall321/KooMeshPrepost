@@ -73,9 +73,9 @@ public:
             }
 
             // Add some test data
-            mesh.addNode(std::make_unique<Node>(1, 0, 0, 0));
-            mesh.addNode(std::make_unique<Node>(2, 1, 0, 0));
-            mesh.addNode(std::make_unique<Node>(3, 0, 1, 0));
+            mesh.addNode(Node(1, 0, 0, 0));
+            mesh.addNode(Node(2, 1, 0, 0));
+            mesh.addNode(Node(3, 0, 1, 0));
 
             result.nodesRead = 3;
             result.elementsRead = 0;
@@ -404,10 +404,10 @@ protected:
         writer = std::make_unique<MockFileWriter>();
 
         // Create test mesh
-        mesh.addNode(std::make_unique<Node>(1, 0, 0, 0));
-        mesh.addNode(std::make_unique<Node>(2, 1, 0, 0));
-        mesh.addNode(std::make_unique<Node>(3, 0, 1, 0));
-        mesh.addNode(std::make_unique<Node>(4, 0, 0, 1));
+        mesh.addNode(Node(1, 0, 0, 0));
+        mesh.addNode(Node(2, 1, 0, 0));
+        mesh.addNode(Node(3, 0, 1, 0));
+        mesh.addNode(Node(4, 0, 0, 1));
     }
 };
 
