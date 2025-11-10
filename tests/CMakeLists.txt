@@ -743,3 +743,203 @@ target_include_directories(test_custom_interactor_style
 
 add_test(NAME CustomInteractorStyleTests COMMAND test_custom_interactor_style)
 set_tests_properties(CustomInteractorStyleTests PROPERTIES TIMEOUT 60)
+
+# SelectionHighlighter tests (Phase 61)
+add_executable(test_selection_highlighter
+    visualization/test_SelectionHighlighter.cpp
+)
+
+target_link_libraries(test_selection_highlighter
+    PRIVATE
+        koomesh_lib
+        GTest::GTest
+        GTest::Main
+)
+
+target_include_directories(test_selection_highlighter
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_test(NAME SelectionHighlighterTests COMMAND test_selection_highlighter)
+set_tests_properties(SelectionHighlighterTests PROPERTIES TIMEOUT 60)
+
+# AreaSelector tests (Phase 62)
+add_executable(test_area_selector
+    visualization/test_AreaSelector.cpp
+)
+
+target_link_libraries(test_area_selector
+    PRIVATE
+        koomesh_lib
+        GTest::GTest
+        GTest::Main
+)
+
+target_include_directories(test_area_selector
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_test(NAME AreaSelectorTests COMMAND test_area_selector)
+set_tests_properties(AreaSelectorTests PROPERTIES TIMEOUT 60)
+
+# HardwareSelector tests (Phase 63)
+add_executable(test_hardware_selector
+    visualization/test_HardwareSelector.cpp
+)
+
+target_link_libraries(test_hardware_selector
+    PRIVATE
+        koomesh_lib
+        GTest::GTest
+        GTest::Main
+)
+
+target_include_directories(test_hardware_selector
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_test(NAME HardwareSelectorTests COMMAND test_hardware_selector)
+set_tests_properties(HardwareSelectorTests PROPERTIES TIMEOUT 60)
+
+# VisualizationOptions tests (Phase 64)
+add_executable(test_visualization_options
+    visualization/test_VisualizationOptions.cpp
+)
+
+target_link_libraries(test_visualization_options
+    PRIVATE
+        koomesh_lib
+        GTest::GTest
+        GTest::Main
+)
+
+target_include_directories(test_visualization_options
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_test(NAME VisualizationOptionsTests COMMAND test_visualization_options)
+set_tests_properties(VisualizationOptionsTests PROPERTIES TIMEOUT 60)
+
+# ColorMapper tests (Phase 65)
+add_executable(test_color_mapper
+    visualization/test_ColorMapper.cpp
+)
+
+target_link_libraries(test_color_mapper
+    PRIVATE
+        koomesh_lib
+        GTest::GTest
+        GTest::Main
+)
+
+target_include_directories(test_color_mapper
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_test(NAME ColorMapperTests COMMAND test_color_mapper)
+set_tests_properties(ColorMapperTests PROPERTIES TIMEOUT 60)
+
+# LightingManager tests (Phase 66)
+add_executable(test_lighting_manager
+    visualization/test_LightingManager.cpp
+)
+
+target_link_libraries(test_lighting_manager
+    PRIVATE
+        koomesh_lib
+        GTest::GTest
+        GTest::Main
+)
+
+target_include_directories(test_lighting_manager
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_test(NAME LightingManagerTests COMMAND test_lighting_manager)
+set_tests_properties(LightingManagerTests PROPERTIES TIMEOUT 60)
+
+# AnnotationManager tests (Phase 67)
+add_executable(test_annotation_manager
+    visualization/test_AnnotationManager.cpp
+)
+
+target_link_libraries(test_annotation_manager
+    PRIVATE
+        koomesh_lib
+        GTest::GTest
+        GTest::Main
+)
+
+target_include_directories(test_annotation_manager
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_test(NAME AnnotationManagerTests COMMAND test_annotation_manager)
+set_tests_properties(AnnotationManagerTests PROPERTIES TIMEOUT 60)
+
+# ScreenshotManager tests (Phase 68)
+add_executable(test_screenshot_manager
+    visualization/test_ScreenshotManager.cpp
+)
+
+target_link_libraries(test_screenshot_manager
+    PRIVATE
+        koomesh_lib
+        GTest::GTest
+        GTest::Main
+)
+
+target_include_directories(test_screenshot_manager
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_test(NAME ScreenshotManagerTests COMMAND test_screenshot_manager)
+set_tests_properties(ScreenshotManagerTests PROPERTIES TIMEOUT 60)
+
+# MemoryOptimizer tests (Phase 69)
+add_executable(test_memory_optimizer
+    visualization/test_MemoryOptimizer.cpp
+)
+
+target_link_libraries(test_memory_optimizer
+    PRIVATE
+        koomesh_lib
+        GTest::GTest
+        GTest::Main
+)
+
+target_include_directories(test_memory_optimizer
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_test(NAME MemoryOptimizerTests COMMAND test_memory_optimizer)
+set_tests_properties(MemoryOptimizerTests PROPERTIES TIMEOUT 60)
+
+# Visualization Integration tests (Phase 70)
+add_executable(test_visualization_integration
+    visualization/test_integration.cpp
+)
+
+target_link_libraries(test_visualization_integration
+    PRIVATE
+        koomesh_lib
+        GTest::GTest
+        GTest::Main
+)
+
+target_include_directories(test_visualization_integration
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_test(NAME VisualizationIntegrationTests COMMAND test_visualization_integration)
+set_tests_properties(VisualizationIntegrationTests PROPERTIES TIMEOUT 120)

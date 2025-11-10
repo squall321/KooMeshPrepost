@@ -23,7 +23,12 @@ private:
 
 public:
     bool canRead(const std::string& filename) const override {
-        return filename.find(".mock") != std::string::npos;
+        for (const auto& ext : supportedExtensions()) {
+            if (filename.find(ext) != std::string::npos) {
+                return true;
+            }
+        }
+        return false;
     }
 
     std::vector<std::string> supportedExtensions() const override {
@@ -73,15 +78,20 @@ public:
             }
 
             // Add some test data
-            mesh.addNode(std::make_unique<Node>(1, 0, 0, 0));
-            mesh.addNode(std::make_unique<Node>(2, 1, 0, 0));
-            mesh.addNode(std::make_unique<Node>(3, 0, 1, 0));
+            mesh.addNode(Node(1, 0, 0, 0));
+            mesh.addNode(Node(2, 1, 0, 0));
+            mesh.addNode(Node(3, 0, 1, 0));
 
             result.nodesRead = 3;
             result.elementsRead = 0;
             result.partsRead = 0;
 
             m_progress = 1.0;
+
+            // Final progress callback
+            if (progressCallback) {
+                progressCallback(1.0, "Reading complete");
+            }
 
         } catch (const OperationCancelledException&) {
             result.success = false;
@@ -126,7 +136,12 @@ private:
 
 public:
     bool canWrite(const std::string& filename) const override {
-        return filename.find(".mock") != std::string::npos;
+        for (const auto& ext : supportedExtensions()) {
+            if (filename.find(ext) != std::string::npos) {
+                return true;
+            }
+        }
+        return false;
     }
 
     std::vector<std::string> supportedExtensions() const override {
@@ -162,7 +177,7 @@ public:
 
                 m_progress = static_cast<double>(i) / totalItems;
 
-                if (progressCallback && i % options.progressUpdateFrequency == 0) {
+                if (progressCallback) {
                     bool shouldContinue = progressCallback(
                         m_progress,
                         "Writing item " + std::to_string(i));
@@ -172,7 +187,8 @@ public:
                     }
                 }
 
-                std::this_thread::sleep_for(std::chrono::microseconds(100));
+                // Sleep longer to allow isWriting() tests to work
+                std::this_thread::sleep_for(std::chrono::milliseconds(2));
             }
 
             result.nodesWritten = mesh.nodeCount();
@@ -182,15 +198,22 @@ public:
 
             m_progress = 1.0;
 
+            // Final progress callback
+            if (progressCallback) {
+                progressCallback(1.0, "Writing complete");
+            }
+
         } catch (const OperationCancelledException&) {
             result.success = false;
             result.message = "Operation cancelled";
+            m_isWriting = false;
             throw;
         } catch (const std::exception& e) {
             result.success = false;
             result.message = e.what();
             result.errorCount = 1;
             result.errors.push_back(e.what());
+            m_isWriting = false;
         }
 
         auto endTime = std::chrono::high_resolution_clock::now();
@@ -404,10 +427,10 @@ protected:
         writer = std::make_unique<MockFileWriter>();
 
         // Create test mesh
-        mesh.addNode(std::make_unique<Node>(1, 0, 0, 0));
-        mesh.addNode(std::make_unique<Node>(2, 1, 0, 0));
-        mesh.addNode(std::make_unique<Node>(3, 0, 1, 0));
-        mesh.addNode(std::make_unique<Node>(4, 0, 0, 1));
+        mesh.addNode(Node(1, 0, 0, 0));
+        mesh.addNode(Node(2, 1, 0, 0));
+        mesh.addNode(Node(3, 0, 1, 0));
+        mesh.addNode(Node(4, 0, 0, 1));
     }
 };
 

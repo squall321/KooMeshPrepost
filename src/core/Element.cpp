@@ -1,6 +1,7 @@
 #include "core/Element.h"
 #include "core/Mesh.h"
 #include "utils/Exception.h"
+#include <Eigen/Geometry>
 #include <algorithm>
 #include <limits>
 

@@ -214,7 +214,8 @@ TEST_F(HelpersExampleTest, RealScenario_PerformanceBenchmark) {
     PerformanceTimer timer;
 
     // 대량의 노드 추가 성능 측정
-    auto mesh = MeshBuilder().get();
+    MeshBuilder builder;
+    auto& mesh = builder.get();
 
     for (int i = 0; i < 10000; ++i) {
         mesh.addNode(Node(i, i * 1.0, 0.0, 0.0));

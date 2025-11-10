@@ -20,7 +20,8 @@ TEST_F(MeshValidatorTest, ValidMesh) {
     mesh = SimpleMeshes::singleTetrahedron();
 
     MeshValidator validator;
-    auto result = validator.validate(*mesh);
+    MeshValidator::ValidationOptions validationOpts;
+    auto result = validator.validate(*mesh, validationOpts);
 
     EXPECT_TRUE(result.isValid);
     EXPECT_EQ(0, result.errorCount());
@@ -47,7 +48,8 @@ TEST_F(MeshValidatorTest, IsolatedNodes) {
         .build();
 
     MeshValidator validator;
-    auto result = validator.validate(*mesh);
+    MeshValidator::ValidationOptions validationOpts;
+    auto result = validator.validate(*mesh, validationOpts);
 
     // Should have warning about isolated node
     EXPECT_GT(result.warningCount(), 0);
@@ -63,7 +65,8 @@ TEST_F(MeshValidatorTest, DegenerateElement) {
         .build();
 
     MeshValidator validator;
-    auto result = validator.validate(*mesh);
+    MeshValidator::ValidationOptions validationOpts;
+    auto result = validator.validate(*mesh, validationOpts);
 
     // Should detect degenerate element
     EXPECT_FALSE(result.isValid);
@@ -94,7 +97,8 @@ TEST_F(MeshValidatorTest, EmptyMesh) {
     mesh = std::make_unique<Mesh>();
 
     MeshValidator validator;
-    auto result = validator.validate(*mesh);
+    MeshValidator::ValidationOptions validationOpts;
+    auto result = validator.validate(*mesh, validationOpts);
 
     EXPECT_TRUE(result.isValid);  // Empty is valid
     EXPECT_GT(result.warningCount(), 0);  // But should warn
@@ -127,7 +131,8 @@ protected:
 TEST_F(MeshStatisticsTest, BasicCounts) {
     mesh = SimpleMeshes::singleTetrahedron();
 
-    auto stats = MeshStatistics::compute(*mesh);
+    MeshStatistics::Options statsOpts;
+    auto stats = MeshStatistics::compute(*mesh, statsOpts);
 
     EXPECT_EQ(4, stats.totalNodes);
     EXPECT_EQ(1, stats.totalElements);
@@ -145,7 +150,8 @@ TEST_F(MeshStatisticsTest, ElementTypeCounts) {
         .addTriangle(3, 1, {2, 3, 5})
         .build();
 
-    auto stats = MeshStatistics::compute(*mesh);
+    MeshStatistics::Options statsOpts;
+    auto stats = MeshStatistics::compute(*mesh, statsOpts);
 
     EXPECT_EQ(3, stats.totalElements);
     EXPECT_EQ(1, stats.getElementCount(ElementType::TETRAHEDRON));
@@ -155,7 +161,8 @@ TEST_F(MeshStatisticsTest, ElementTypeCounts) {
 TEST_F(MeshStatisticsTest, QualityStatistics) {
     mesh = SimpleMeshes::singleTetrahedron();
 
-    auto stats = MeshStatistics::compute(*mesh);
+    MeshStatistics::Options statsOpts;
+    auto stats = MeshStatistics::compute(*mesh, statsOpts);
 
     EXPECT_GT(stats.avgElementQuality, 0.0);
     EXPECT_LE(stats.avgElementQuality, 1.0);
@@ -166,7 +173,8 @@ TEST_F(MeshStatisticsTest, QualityStatistics) {
 TEST_F(MeshStatisticsTest, VolumeStatistics) {
     mesh = SimpleMeshes::singleTetrahedron();
 
-    auto stats = MeshStatistics::compute(*mesh);
+    MeshStatistics::Options statsOpts;
+    auto stats = MeshStatistics::compute(*mesh, statsOpts);
 
     EXPECT_GT(stats.totalVolume, 0.0);
     EXPECT_GT(stats.avgElementVolume, 0.0);
@@ -182,7 +190,8 @@ TEST_F(MeshStatisticsTest, BoundingBox) {
         .addTetrahedron(1, 1, {1, 2, 3, 4})
         .build();
 
-    auto stats = MeshStatistics::compute(*mesh);
+    MeshStatistics::Options statsOpts;
+    auto stats = MeshStatistics::compute(*mesh, statsOpts);
 
     EXPECT_DOUBLE_EQ(0.0, stats.globalBounds.minX);
     EXPECT_DOUBLE_EQ(10.0, stats.globalBounds.maxX);
@@ -203,7 +212,8 @@ TEST_F(MeshStatisticsTest, ConnectivityStatistics) {
         .addTetrahedron(2, 1, {2, 3, 4, 5})
         .build();
 
-    auto stats = MeshStatistics::compute(*mesh);
+    MeshStatistics::Options statsOpts;
+    auto stats = MeshStatistics::compute(*mesh, statsOpts);
 
     // Nodes 2, 3, 4 are connected to 2 elements
     EXPECT_EQ(2, stats.maxNodeConnections);
@@ -223,7 +233,8 @@ TEST_F(MeshStatisticsTest, PartStatistics) {
         .addTetrahedron(3, 2, {1, 2, 4, 5})
         .build();
 
-    auto stats = MeshStatistics::compute(*mesh);
+    MeshStatistics::Options statsOpts;
+    auto stats = MeshStatistics::compute(*mesh, statsOpts);
 
     EXPECT_EQ(2, stats.partElementCounts[1]);
     EXPECT_EQ(1, stats.partElementCounts[2]);
@@ -232,7 +243,8 @@ TEST_F(MeshStatisticsTest, PartStatistics) {
 TEST_F(MeshStatisticsTest, EmptyMesh) {
     mesh = std::make_unique<Mesh>();
 
-    auto stats = MeshStatistics::compute(*mesh);
+    MeshStatistics::Options statsOpts;
+    auto stats = MeshStatistics::compute(*mesh, statsOpts);
 
     EXPECT_EQ(0, stats.totalNodes);
     EXPECT_EQ(0, stats.totalElements);
@@ -242,7 +254,8 @@ TEST_F(MeshStatisticsTest, EmptyMesh) {
 TEST_F(MeshStatisticsTest, ReportGeneration) {
     mesh = SimpleMeshes::singleTetrahedron();
 
-    auto stats = MeshStatistics::compute(*mesh);
+    MeshStatistics::Options statsOpts;
+    auto stats = MeshStatistics::compute(*mesh, statsOpts);
     std::string report = stats.generateReport();
 
     // Should contain key sections
@@ -255,7 +268,8 @@ TEST_F(MeshStatisticsTest, ReportGeneration) {
 TEST_F(MeshStatisticsTest, SummaryString) {
     mesh = SimpleMeshes::singleTetrahedron();
 
-    auto stats = MeshStatistics::compute(*mesh);
+    MeshStatistics::Options statsOpts;
+    auto stats = MeshStatistics::compute(*mesh, statsOpts);
     std::string summary = stats.summary();
 
     EXPECT_STRING_CONTAINS(summary, "4 nodes");
@@ -301,12 +315,14 @@ TEST_F(MeshAnalysisIntegrationTest, ValidateAndAnalyze) {
 
     // Validate first
     MeshValidator validator;
-    auto validation = validator.validate(*mesh);
+    MeshValidator::ValidationOptions validationOpts;
+    auto validation = validator.validate(*mesh, validationOpts);
 
     EXPECT_TRUE(validation.isValid);
 
     // Then analyze
-    auto stats = MeshStatistics::compute(*mesh);
+    MeshStatistics::Options statsOpts;
+    auto stats = MeshStatistics::compute(*mesh, statsOpts);
 
     EXPECT_EQ(8, stats.totalNodes);
     EXPECT_EQ(1, stats.totalElements);
@@ -326,10 +342,12 @@ TEST_F(MeshAnalysisIntegrationTest, ComplexMesh) {
 
     // Validate
     MeshValidator validator;
-    auto validation = validator.validate(*mesh);
+    MeshValidator::ValidationOptions validationOpts;  // Use default options
+    auto validation = validator.validate(*mesh, validationOpts);
 
     // Analyze
-    auto stats = MeshStatistics::compute(*mesh);
+    MeshStatistics::Options statsOpts;  // Use default options
+    auto stats = MeshStatistics::compute(*mesh, statsOpts);
 
     EXPECT_EQ(25, stats.totalNodes);
     EXPECT_EQ(16, stats.totalElements);
@@ -351,7 +369,8 @@ TEST_F(MeshAnalysisIntegrationTest, MixedElementTypes) {
         .addBeam(3, 3, {2, 5})
         .build();
 
-    auto stats = MeshStatistics::compute(*mesh);
+    MeshStatistics::Options statsOpts;  // Use default options
+    auto stats = MeshStatistics::compute(*mesh, statsOpts);
 
     EXPECT_EQ(3, stats.totalElements);
     EXPECT_EQ(1, stats.getElementCount(ElementType::TETRAHEDRON));

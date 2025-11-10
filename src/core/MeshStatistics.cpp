@@ -175,8 +175,8 @@ void MeshStatistics::computeBasicCounts(const Mesh& mesh, Statistics& stats) {
 }
 
 void MeshStatistics::computeElementTypeCounts(const Mesh& mesh, Statistics& stats) {
-    for (size_t i = 0; i < mesh.elementCount(); ++i) {
-        const Element* elem = mesh.getElement(i);
+    for (const auto& pair : mesh.elements()) {
+        const Element* elem = pair.second.get();
         if (elem) {
             stats.elementTypeCounts[elem->type()]++;
         }
@@ -195,8 +195,8 @@ void MeshStatistics::computeQualityStatistics(const Mesh& mesh, Statistics& stat
     stats.minElementQuality = 1.0;
     stats.maxElementQuality = 0.0;
 
-    for (size_t i = 0; i < mesh.elementCount(); ++i) {
-        const Element* elem = mesh.getElement(i);
+    for (const auto& pair : mesh.elements()) {
+        const Element* elem = pair.second.get();
         if (!elem) continue;
 
         double quality = elem->computeQuality(mesh);
@@ -224,8 +224,8 @@ void MeshStatistics::computeVolumeStatistics(const Mesh& mesh, Statistics& stats
 
     size_t count = 0;
 
-    for (size_t i = 0; i < mesh.elementCount(); ++i) {
-        const Element* elem = mesh.getElement(i);
+    for (const auto& pair : mesh.elements()) {
+        const Element* elem = pair.second.get();
         if (!elem) continue;
 
         double volume = elem->computeVolume(mesh);
@@ -261,11 +261,10 @@ void MeshStatistics::computeConnectivityStatistics(const Mesh& mesh, Statistics&
     size_t totalConnections = 0;
     size_t nodeCount = 0;
 
-    for (size_t i = 0; i < mesh.nodeCount(); ++i) {
-        const Node* node = mesh.getNode(i);
-        if (!node) continue;
+    for (const auto& pair : mesh.nodes()) {
+        const Node& node = pair.second;
 
-        size_t connections = node->connectedElements().size();
+        size_t connections = node.connectedElements().size();
         totalConnections += connections;
         ++nodeCount;
 
@@ -283,8 +282,8 @@ void MeshStatistics::computeConnectivityStatistics(const Mesh& mesh, Statistics&
 }
 
 void MeshStatistics::computePartStatistics(const Mesh& mesh, Statistics& stats) {
-    for (size_t i = 0; i < mesh.elementCount(); ++i) {
-        const Element* elem = mesh.getElement(i);
+    for (const auto& pair : mesh.elements()) {
+        const Element* elem = pair.second.get();
         if (elem) {
             stats.partElementCounts[elem->partId()]++;
         }

@@ -266,7 +266,7 @@ TEST_F(ElementTest, ElementFactory_NotImplemented) {
     std::vector<NodeId> nodeIds = {1, 2, 3};
 
     EXPECT_THROW(
-        ElementFactory::create(ElementType::TRIANGLE, 300, 3, nodeIds),
+        ElementFactory::create(ElementType::UNKNOWN, 300, 3, nodeIds),
         koomesh::utils::RuntimeException
     );
 }

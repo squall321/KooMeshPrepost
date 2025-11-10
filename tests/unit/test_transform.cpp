@@ -61,13 +61,13 @@ TEST_F(TransformTest, NonUniformScale) {
 }
 
 TEST_F(TransformTest, RotationX) {
-    // 90도 회전 (Z축 -> Y축)
+    // 90도 회전 (Z축 -> -Y축, right-hand rule)
     transform.rotate(Eigen::Vector3d::UnitX(), PI / 2.0);
 
     Eigen::Vector3d point(0, 0, 1);
     Eigen::Vector3d result = transform.apply(point);
 
-    EXPECT_VECTOR_NEAR(Eigen::Vector3d(0, 1, 0), result, 1e-10);
+    EXPECT_VECTOR_NEAR(Eigen::Vector3d(0, -1, 0), result, 1e-10);
 }
 
 TEST_F(TransformTest, RotationY) {

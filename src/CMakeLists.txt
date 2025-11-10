@@ -98,8 +98,12 @@ set(VISUALIZATION_SOURCES
     visualization/CustomInteractorStyle.cpp
     visualization/SelectionHighlighter.cpp
     visualization/AreaSelector.cpp
+    visualization/HardwareSelector.cpp
     visualization/ColorMapper.cpp
     visualization/LightingManager.cpp
+    visualization/AnnotationManager.cpp
+    visualization/ScreenshotManager.cpp
+    visualization/MemoryOptimizer.cpp
 )
 
 set(VISUALIZATION_HEADERS
@@ -108,6 +112,15 @@ set(VISUALIZATION_HEADERS
     ${CMAKE_SOURCE_DIR}/include/visualization/ActorManager.h
     ${CMAKE_SOURCE_DIR}/include/visualization/CameraController.h
     ${CMAKE_SOURCE_DIR}/include/visualization/CustomInteractorStyle.h
+    ${CMAKE_SOURCE_DIR}/include/visualization/SelectionHighlighter.h
+    ${CMAKE_SOURCE_DIR}/include/visualization/AreaSelector.h
+    ${CMAKE_SOURCE_DIR}/include/visualization/HardwareSelector.h
+    ${CMAKE_SOURCE_DIR}/include/visualization/ColorMapper.h
+    ${CMAKE_SOURCE_DIR}/include/visualization/VisualizationOptions.h
+    ${CMAKE_SOURCE_DIR}/include/visualization/LightingManager.h
+    ${CMAKE_SOURCE_DIR}/include/visualization/AnnotationManager.h
+    ${CMAKE_SOURCE_DIR}/include/visualization/ScreenshotManager.h
+    ${CMAKE_SOURCE_DIR}/include/visualization/MemoryOptimizer.h
 )
 
 # Selection module
@@ -119,20 +132,27 @@ set(SELECTION_HEADERS
     ${CMAKE_SOURCE_DIR}/include/selection/SelectionManager.h
 )
 
-# UI module
+# UI module (Phase 71-80)
 set(UI_SOURCES
-    ui/MainWindow.cpp
-    ui/PartsPanel.cpp
-    ui/GroupsPanel.cpp
-    ui/PropertiesPanel.cpp
-    ui/SelectionToolBar.cpp
-    ui/ProgressDialog.cpp
-    ui/SettingsDialog.cpp
+    ui/MainWindow.cpp       # Phase 71 (complete)
+    ui/PartsPanel.cpp       # Phase 72 (complete)
+    ui/GroupsPanel.cpp      # Phase 73 (complete)
+    ui/PropertiesPanel.cpp  # Phase 74 (complete)
+    ui/SelectionToolBar.cpp # Phase 75 (complete)
+    ui/ProgressDialog.cpp   # Phase 76 (complete)
+    # Phase 77-80: Additional dialogs to be implemented
+    # ui/SettingsDialog.cpp
 )
 
 set(UI_HEADERS
     ${CMAKE_SOURCE_DIR}/include/ui/MainWindow.h
     ${CMAKE_SOURCE_DIR}/include/ui/PartsPanel.h
+    ${CMAKE_SOURCE_DIR}/include/ui/GroupsPanel.h
+    ${CMAKE_SOURCE_DIR}/include/ui/PropertiesPanel.h
+    ${CMAKE_SOURCE_DIR}/include/ui/SelectionToolBar.h
+    ${CMAKE_SOURCE_DIR}/include/ui/ProgressDialog.h
+    # Phase 77-80: Additional dialogs
+    # ${CMAKE_SOURCE_DIR}/include/ui/SettingsDialog.h
 )
 
 # Utils module
@@ -217,13 +237,19 @@ if(VTK_FOUND)
     )
 endif()
 
-# Qt 링크
+# Qt linking (LGPL v3 compliant - dynamic linking)
+# Qt libraries are linked dynamically (shared libraries)
+# This allows users to replace Qt libraries as required by LGPL v3
+# See docs/QT_LGPL_COMPLIANCE.md for details
 if(Qt6_FOUND)
     target_link_libraries(koomesh_lib PRIVATE
         Qt6::Core
         Qt6::Widgets
         Qt6::OpenGLWidgets
     )
+
+    # Note: Qt is always dynamically linked (CMake default for imported targets)
+    # POSITION_INDEPENDENT_CODE is set later for all of koomesh_lib
 endif()
 
 # ============================================================================

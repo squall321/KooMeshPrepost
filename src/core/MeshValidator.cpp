@@ -85,8 +85,8 @@ bool MeshValidator::checkNodeReferences(const Mesh& mesh, ValidationResult& resu
     size_t invalidCount = 0;
 
     // 모든 요소의 노드 참조 확인
-    for (size_t i = 0; i < mesh.elementCount(); ++i) {
-        const Element* elem = mesh.getElement(i);
+    for (const auto& pair : mesh.elements()) {
+        const Element* elem = pair.second.get();
         if (!elem) continue;
 
         for (NodeId nodeId : elem->nodeIds()) {
@@ -115,11 +115,10 @@ bool MeshValidator::checkConnectivity(const Mesh& mesh, ValidationResult& result
     size_t isolatedNodes = 0;
 
     // 고립된 노드 찾기 (어떤 요소에도 연결되지 않은 노드)
-    for (size_t i = 0; i < mesh.nodeCount(); ++i) {
-        const Node* node = mesh.getNode(i);
-        if (!node) continue;
+    for (const auto& pair : mesh.nodes()) {
+        const Node& node = pair.second;
 
-        if (node->connectedElements().empty()) {
+        if (node.connectedElements().empty()) {
             ++isolatedNodes;
         }
     }
@@ -164,8 +163,8 @@ bool MeshValidator::checkDuplicateElements(const Mesh& mesh, ValidationResult& r
     std::unordered_set<ElementId> seenIds;
     size_t duplicateCount = 0;
 
-    for (size_t i = 0; i < mesh.elementCount(); ++i) {
-        const Element* elem = mesh.getElement(i);
+    for (const auto& pair : mesh.elements()) {
+        const Element* elem = pair.second.get();
         if (!elem) continue;
 
         if (seenIds.find(elem->id()) != seenIds.end()) {
@@ -183,8 +182,8 @@ bool MeshValidator::checkDuplicateElements(const Mesh& mesh, ValidationResult& r
 bool MeshValidator::checkDegenerateElements(const Mesh& mesh, ValidationResult& result) {
     size_t degenerateCount = 0;
 
-    for (size_t i = 0; i < mesh.elementCount(); ++i) {
-        const Element* elem = mesh.getElement(i);
+    for (const auto& pair : mesh.elements()) {
+        const Element* elem = pair.second.get();
         if (!elem) continue;
 
         // 부피가 0인 요소 찾기
@@ -213,8 +212,8 @@ bool MeshValidator::checkElementQuality(const Mesh& mesh,
     size_t lowQualityCount = 0;
     double minFound = 1.0;
 
-    for (size_t i = 0; i < mesh.elementCount(); ++i) {
-        const Element* elem = mesh.getElement(i);
+    for (const auto& pair : mesh.elements()) {
+        const Element* elem = pair.second.get();
         if (!elem) continue;
 
         double quality = elem->computeQuality(mesh);
@@ -249,8 +248,8 @@ bool MeshValidator::checkPartReferences(const Mesh& mesh, ValidationResult& resu
     std::unordered_set<PartId> usedParts;
 
     // 요소에서 사용된 파트 수집
-    for (size_t i = 0; i < mesh.elementCount(); ++i) {
-        const Element* elem = mesh.getElement(i);
+    for (const auto& pair : mesh.elements()) {
+        const Element* elem = pair.second.get();
         if (!elem) continue;
 
         usedParts.insert(elem->partId());
@@ -268,11 +267,10 @@ bool MeshValidator::checkPartReferences(const Mesh& mesh, ValidationResult& resu
 
     // 사용되지 않는 파트 확인
     size_t unusedParts = 0;
-    for (size_t i = 0; i < mesh.partCount(); ++i) {
-        const Part* part = mesh.getPart(i);
-        if (!part) continue;
+    for (const auto& pair : mesh.parts()) {
+        const Part& part = pair.second;
 
-        if (usedParts.find(part->id()) == usedParts.end()) {
+        if (usedParts.find(part.id()) == usedParts.end()) {
             ++unusedParts;
         }
     }
@@ -329,17 +327,19 @@ MeshValidator::findCoincidentNodes(const Mesh& mesh, double tolerance) {
 
     double tol2 = tolerance * tolerance;
 
-    for (size_t i = 0; i < mesh.nodeCount(); ++i) {
-        const Node* node1 = mesh.getNode(i);
-        if (!node1) continue;
+    // 모든 노드 쌍 비교
+    const auto& nodes = mesh.nodes();
+    for (auto it1 = nodes.begin(); it1 != nodes.end(); ++it1) {
+        const Node& node1 = it1->second;
 
-        for (size_t j = i + 1; j < mesh.nodeCount(); ++j) {
-            const Node* node2 = mesh.getNode(j);
-            if (!node2) continue;
+        auto it2 = it1;
+        ++it2;
+        for (; it2 != nodes.end(); ++it2) {
+            const Node& node2 = it2->second;
 
-            double dist2 = (node1->coordinates() - node2->coordinates()).squaredNorm();
+            double dist2 = (node1.coordinates() - node2.coordinates()).squaredNorm();
             if (dist2 < tol2) {
-                duplicates.emplace_back(node1->id(), node2->id());
+                duplicates.emplace_back(node1.id(), node2.id());
             }
         }
     }

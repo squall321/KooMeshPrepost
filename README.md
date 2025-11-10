@@ -304,6 +304,34 @@ doxygen Doxyfile
 
 ---
 
+## 📜 라이선스
+
+### KooMeshPrepost
+이 프로젝트는 **MIT License** 하에 배포됩니다.
+
+### Qt (LGPL v3)
+KooMeshPrepost는 **Qt 6**를 LGPL v3 라이선스로 사용합니다.
+
+**✓ 상업적 사용 가능**: Qt LGPL은 무료 상업적 사용이 가능합니다.
+
+**LGPL v3 준수 사항**:
+- Qt는 동적 링크 (shared library)로 사용됩니다
+- 사용자는 Qt 라이브러리를 교체할 수 있습니다
+- Qt 소스 코드는 수정하지 않았습니다
+
+**자세한 정보**:
+- Qt LGPL 준수 가이드: [docs/QT_LGPL_COMPLIANCE.md](docs/QT_LGPL_COMPLIANCE.md)
+- Qt 라이선스 파일: [qt-licenses/](qt-licenses/)
+- Qt 공식 라이선스 정보: https://www.qt.io/licensing/
+
+### 기타 라이브러리
+- **VTK**: BSD 3-Clause License (상업적 사용 가능)
+- **Eigen**: MPL2 License (상업적 사용 가능)
+- **TBB**: Apache 2.0 License (상업적 사용 가능)
+- **Boost**: Boost Software License (상업적 사용 가능)
+
+---
+
 ## 📧 연락처
 
 - **개발자**: Koo Engineering Team

@@ -21,7 +21,8 @@ Transform::Transform(const Eigen::Affine3d& transform)
 // ======================================================================
 
 void Transform::translate(const Eigen::Vector3d& offset) {
-    m_transform.translate(offset);
+    // Pre-multiplication: m_transform = Translation * m_transform
+    m_transform.pretranslate(offset);
 }
 
 void Transform::rotate(const Eigen::Vector3d& axis, double angleRadians) {
@@ -29,8 +30,9 @@ void Transform::rotate(const Eigen::Vector3d& axis, double angleRadians) {
     Eigen::Vector3d normalizedAxis = axis.normalized();
 
     // AngleAxis를 사용한 회전
+    // Pre-multiplication: m_transform = Rotation * m_transform
     Eigen::AngleAxisd rotation(angleRadians, normalizedAxis);
-    m_transform.rotate(rotation);
+    m_transform.prerotate(rotation);
 }
 
 void Transform::rotateEuler(double roll, double pitch, double yaw) {
@@ -40,16 +42,19 @@ void Transform::rotateEuler(double roll, double pitch, double yaw) {
     Eigen::AngleAxisd yawAngle(yaw, Eigen::Vector3d::UnitZ());
 
     Eigen::Quaterniond q = yawAngle * pitchAngle * rollAngle;
-    m_transform.rotate(q);
+    // Pre-multiplication: m_transform = Rotation * m_transform
+    m_transform.prerotate(q);
 }
 
 void Transform::scale(double factor) {
-    m_transform.scale(factor);
+    // Pre-multiplication: m_transform = Scale * m_transform
+    m_transform.prescale(factor);
 }
 
 void Transform::scale(double scaleX, double scaleY, double scaleZ) {
     Eigen::Vector3d scaleVec(scaleX, scaleY, scaleZ);
-    m_transform.scale(scaleVec);
+    // Pre-multiplication: m_transform = Scale * m_transform
+    m_transform.prescale(scaleVec);
 }
 
 // ======================================================================
@@ -142,12 +147,26 @@ void Transform::decompose(Eigen::Vector3d& translation,
 Transform Transform::compose(const Eigen::Vector3d& translation,
                             const Eigen::Quaterniond& rotation,
                             const Eigen::Vector3d& scale) {
+    // TRS 행렬을 명시적으로 구성: T * R * S
+    // M = T * R * S
+    // 점 변환: p' = M * p = T * R * S * p
+
     Eigen::Affine3d transform = Eigen::Affine3d::Identity();
 
-    // TRS 순서: Scale -> Rotate -> Translate
-    transform.scale(scale);
-    transform.rotate(rotation);
-    transform.translate(translation);
+    // 스케일 행렬 (대각 행렬)
+    Eigen::Matrix3d S = Eigen::Matrix3d::Identity();
+    S(0, 0) = scale.x();
+    S(1, 1) = scale.y();
+    S(2, 2) = scale.z();
+
+    // 회전 행렬
+    Eigen::Matrix3d R = rotation.toRotationMatrix();
+
+    // 선형 부분: R * S
+    transform.linear() = R * S;
+
+    // 평행이동 부분
+    transform.translation() = translation;
 
     return Transform(transform);
 }

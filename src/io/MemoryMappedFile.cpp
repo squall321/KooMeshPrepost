@@ -67,7 +67,9 @@ MemoryMappedFile::MemoryMappedFile(MemoryMappedFile&& other) noexcept
     , m_fileHandle(other.m_fileHandle),
       m_mappingHandle(other.m_mappingHandle)
 #else
-    , m_fileDescriptor(other.m_fileDescriptor)
+    , m_fileDescriptor(other.m_fileDescriptor),
+      m_mappedBase(other.m_mappedBase),
+      m_mappedSize(other.m_mappedSize)
 #endif
 {
     other.m_data = nullptr;
@@ -79,6 +81,8 @@ MemoryMappedFile::MemoryMappedFile(MemoryMappedFile&& other) noexcept
     other.m_mappingHandle = nullptr;
 #else
     other.m_fileDescriptor = -1;
+    other.m_mappedBase = nullptr;
+    other.m_mappedSize = 0;
 #endif
 }
 
@@ -100,7 +104,11 @@ MemoryMappedFile& MemoryMappedFile::operator=(MemoryMappedFile&& other) noexcept
         other.m_mappingHandle = nullptr;
 #else
         m_fileDescriptor = other.m_fileDescriptor;
+        m_mappedBase = other.m_mappedBase;
+        m_mappedSize = other.m_mappedSize;
         other.m_fileDescriptor = -1;
+        other.m_mappedBase = nullptr;
+        other.m_mappedSize = 0;
 #endif
 
         other.m_data = nullptr;
@@ -122,6 +130,7 @@ bool MemoryMappedFile::open(
     m_filename = filename;
     m_mode = mode;
     m_offset = offset;
+    m_size = size;  // Store the requested size
 
     return openImpl();
 }
@@ -247,6 +256,19 @@ bool MemoryMappedFile::openImpl() {
     }
     m_fileSize = static_cast<size_t>(fileSize.QuadPart);
 
+    // Allow empty files (size 0) - don't map them, just succeed
+    if (m_fileSize == 0) {
+        m_data = nullptr;
+        m_size = 0;
+        return true;
+    }
+
+    // Check if offset is beyond file size
+    if (m_offset >= m_fileSize) {
+        closeImpl();
+        return false;
+    }
+
     // Determine mapping size
     if (m_size == 0) {
         m_size = m_fileSize - m_offset;
@@ -349,43 +371,75 @@ bool MemoryMappedFile::openImpl() {
 
     // Get file size
     m_fileSize = getFileSize(m_fileDescriptor);
+
+    // Allow empty files (size 0) - don't map them, just succeed
     if (m_fileSize == 0) {
+        m_data = nullptr;
+        m_size = 0;
+        m_mappedBase = nullptr;
+        m_mappedSize = 0;
+        return true;
+    }
+
+    // Store user-requested offset and size
+    size_t userOffset = m_offset;
+    size_t userSize = m_size;
+
+    // Check if offset is beyond file size
+    if (userOffset >= m_fileSize) {
         closeImpl();
         return false;
     }
 
     // Determine mapping size
-    if (m_size == 0) {
-        m_size = m_fileSize - m_offset;
+    if (userSize == 0) {
+        userSize = m_fileSize - userOffset;
     }
 
-    if (m_offset + m_size > m_fileSize) {
+    if (userOffset + userSize > m_fileSize) {
         closeImpl();
         return false;
     }
 
-    // Map file
+    // Align offset to page boundary for mmap
+    // mmap requires offset to be page-aligned
+    size_t alignedOffset = alignToPage(userOffset);
+    size_t offsetDelta = userOffset - alignedOffset;
+    size_t alignedSize = userSize + offsetDelta;
+
+    // Map file with aligned offset
     void* mapped = mmap(
         nullptr,
-        m_size,
+        alignedSize,
         protection,
         mapFlags,
         m_fileDescriptor,
-        static_cast<off_t>(m_offset));
+        static_cast<off_t>(alignedOffset));
 
     if (mapped == MAP_FAILED) {
         closeImpl();
         return false;
     }
 
-    m_data = static_cast<char*>(mapped);
+    // Store the actual mmap base and size for munmap
+    m_mappedBase = static_cast<char*>(mapped);
+    m_mappedSize = alignedSize;
+
+    // Adjust data pointer to user-requested offset within the mapping
+    m_data = m_mappedBase + offsetDelta;
+    m_size = userSize;
+
+    // m_offset should remain as the user-requested offset for offset() accessor
+    // m_offset is already set to userOffset
+
     return true;
 }
 
 void MemoryMappedFile::closeImpl() {
-    if (m_data != nullptr) {
-        munmap(m_data, m_size);
-        m_data = nullptr;
+    if (m_mappedBase != nullptr) {
+        munmap(m_mappedBase, m_mappedSize);
+        m_mappedBase = nullptr;
+        m_mappedSize = 0;
     }
 
     if (m_fileDescriptor != -1) {
@@ -393,6 +447,7 @@ void MemoryMappedFile::closeImpl() {
         m_fileDescriptor = -1;
     }
 
+    m_data = nullptr;
     m_size = 0;
     m_fileSize = 0;
 }

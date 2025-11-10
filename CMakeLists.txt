@@ -141,14 +141,27 @@ endforeach()
 # Dependencies
 # ============================================================================
 
-# Qt6
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
-set(CMAKE_AUTOUIC ON)
+# ============================================================================
+# Qt6 - LGPL v3 License
+# ============================================================================
+# Qt is used under LGPL v3 license with dynamic linking.
+# This ensures:
+# - Free use for commercial and non-commercial projects
+# - Users can replace Qt libraries with compatible versions
+# - No static linking (LGPL compliant)
+#
+# For full compliance details, see: docs/QT_LGPL_COMPLIANCE.md
+# Qt licenses are in: qt-licenses/
+# ============================================================================
 
+set(CMAKE_AUTOMOC ON)  # Automatic MOC (Meta-Object Compiler) for Qt
+set(CMAKE_AUTORCC ON)  # Automatic Resource Compiler for Qt
+set(CMAKE_AUTOUIC ON)  # Automatic UI Compiler for Qt
+
+# Find Qt6 (minimum version 6.2 for good OpenGL support)
 find_package(Qt6 6.2 QUIET COMPONENTS Core Widgets OpenGLWidgets)
 if(Qt6_FOUND)
-    message(STATUS "Found Qt6: ${Qt6_VERSION}")
+    message(STATUS "Found Qt6: ${Qt6_VERSION} (LGPL v3 - dynamically linked)")
 else()
     message(WARNING "Qt6 not found - UI will not be built")
     set(BUILD_GUI OFF)

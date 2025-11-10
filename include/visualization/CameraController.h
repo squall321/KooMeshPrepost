@@ -426,7 +426,9 @@ private:
 // Stub implementation when VTK is not available
 class CameraController {
 public:
-    explicit CameraController(void*) {}
+    explicit CameraController(void* camera = nullptr) {
+        (void)camera;
+    }
     ~CameraController() {}
 
     void* getCamera() const { return nullptr; }
