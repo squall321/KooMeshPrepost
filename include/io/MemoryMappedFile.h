@@ -203,6 +203,8 @@ private:
     void* m_mappingHandle = nullptr;   // HANDLE
 #else
     int m_fileDescriptor = -1;
+    char* m_mappedBase = nullptr;      // Actual mmap base (for munmap)
+    size_t m_mappedSize = 0;           // Actual mmap size (for munmap)
 #endif
 
     // Helper methods
