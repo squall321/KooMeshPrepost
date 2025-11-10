@@ -37,6 +37,7 @@ class Element;
 class Node;
 class Group;
 class Mesh;
+enum class ElementType;
 }
 
 namespace ui {
@@ -191,6 +192,13 @@ private:
      * @return Human-readable type name
      */
     QString getElementTypeName(const core::Element* element) const;
+
+    /**
+     * @brief Get element type name from enum
+     * @param type Element type enum
+     * @return Human-readable type name
+     */
+    QString getElementTypeNameFromEnum(core::ElementType type) const;
 
     /**
      * @brief Set title text
