@@ -744,7 +744,8 @@ void MainWindow::onToolsCreateGroup() {
 }
 
 void MainWindow::onToolsSettings() {
-    // TODO: Show settings dialog
+    // Settings dialog - Future implementation
+    // Will include: Rendering options, UI preferences, file paths, etc.
     showStatusMessage("Settings dialog not yet implemented", 2000);
 }
 
@@ -842,10 +843,13 @@ void MainWindow::createCentralWidget() {
     m_vtkWidget = new QVTKOpenGLNativeWidget(this);
     setCentralWidget(m_vtkWidget);
 
-    // Initialize VTK renderer with widget
+    // Initialize VTK renderer with widget (Phase 80)
     if (m_renderer) {
         m_renderer->initialize();
-        // TODO: Set render window for VTK widget
+        // Connect VTK render window to Qt widget
+        if (m_renderer->getRenderWindow()) {
+            m_vtkWidget->setRenderWindow(m_renderer->getRenderWindow());
+        }
     }
 #else
     // Placeholder when VTK not available
