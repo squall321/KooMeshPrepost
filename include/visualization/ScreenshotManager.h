@@ -327,7 +327,7 @@ private:
 // Stub implementation when VTK is not available
 class ScreenshotManager {
 public:
-    explicit ScreenshotManager(void* renderWindow) : m_renderWindow(renderWindow), m_isRecording(false), m_currentFrame(0) {}
+    explicit ScreenshotManager(void* renderWindow = nullptr) : m_renderWindow(renderWindow), m_isRecording(false), m_currentFrame(0) {}
     ~ScreenshotManager() {}
 
     bool captureScreenshot(const std::string& filename) {

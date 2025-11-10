@@ -432,7 +432,7 @@ private:
 // Stub implementation when VTK is not available
 class AnnotationManager {
 public:
-    explicit AnnotationManager(void* renderer) : m_renderer(renderer), m_nextId(0), m_count(0) {}
+    explicit AnnotationManager(void* renderer = nullptr) : m_renderer(renderer), m_nextId(0), m_count(0) {}
     ~AnnotationManager() {}
 
     int addDistanceMeasurement(const Eigen::Vector3d&, const Eigen::Vector3d&, const std::string& = "") {

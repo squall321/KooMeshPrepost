@@ -923,3 +923,23 @@ target_include_directories(test_memory_optimizer
 
 add_test(NAME MemoryOptimizerTests COMMAND test_memory_optimizer)
 set_tests_properties(MemoryOptimizerTests PROPERTIES TIMEOUT 60)
+
+# Visualization Integration tests (Phase 70)
+add_executable(test_visualization_integration
+    visualization/test_integration.cpp
+)
+
+target_link_libraries(test_visualization_integration
+    PRIVATE
+        koomesh_lib
+        GTest::GTest
+        GTest::Main
+)
+
+target_include_directories(test_visualization_integration
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_test(NAME VisualizationIntegrationTests COMMAND test_visualization_integration)
+set_tests_properties(VisualizationIntegrationTests PROPERTIES TIMEOUT 120)

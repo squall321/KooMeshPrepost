@@ -304,7 +304,7 @@ private:
 // Stub implementation when VTK is not available
 class LightingManager {
 public:
-    explicit LightingManager(void* renderer)
+    explicit LightingManager(void* renderer = nullptr)
         : m_renderer(renderer)
         , m_ambientIntensity(0.2)
         , m_ambientColor(1.0, 1.0, 1.0)
