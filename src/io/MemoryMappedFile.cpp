@@ -256,6 +256,13 @@ bool MemoryMappedFile::openImpl() {
     }
     m_fileSize = static_cast<size_t>(fileSize.QuadPart);
 
+    // Allow empty files (size 0) - don't map them, just succeed
+    if (m_fileSize == 0) {
+        m_data = nullptr;
+        m_size = 0;
+        return true;
+    }
+
     // Check if offset is beyond file size
     if (m_offset >= m_fileSize) {
         closeImpl();
@@ -364,9 +371,14 @@ bool MemoryMappedFile::openImpl() {
 
     // Get file size
     m_fileSize = getFileSize(m_fileDescriptor);
+
+    // Allow empty files (size 0) - don't map them, just succeed
     if (m_fileSize == 0) {
-        closeImpl();
-        return false;
+        m_data = nullptr;
+        m_size = 0;
+        m_mappedBase = nullptr;
+        m_mappedSize = 0;
+        return true;
     }
 
     // Store user-requested offset and size

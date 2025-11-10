@@ -129,8 +129,35 @@ std::vector<ParsedField> LineParser::parseAuto(const std::string& line) {
         return parseFree(line);
     }
 
-    // Check if it looks like fixed format (regular spacing)
-    // For now, default to fixed format for LS-DYNA
+    // Check if it looks like whitespace-separated free format
+    // Count consecutive spaces - if there are 2+ spaces between tokens, likely free format
+    bool hasFreeFormatSpacing = false;
+    bool inSpaces = false;
+    int spaceCount = 0;
+    for (char c : line) {
+        if (std::isspace(c)) {
+            if (!inSpaces) {
+                inSpaces = true;
+                spaceCount = 1;
+            } else {
+                ++spaceCount;
+                if (spaceCount >= 2) {
+                    hasFreeFormatSpacing = true;
+                    break;
+                }
+            }
+        } else {
+            inSpaces = false;
+            spaceCount = 0;
+        }
+    }
+
+    // If whitespace-separated, use free format parsing
+    if (hasFreeFormatSpacing) {
+        return parseFree(line);
+    }
+
+    // Otherwise use fixed format
     return parseFixed(line, 10);
 }
 
@@ -206,10 +233,8 @@ bool NodeParser::parseNodeLine(
     core::Mesh& mesh,
     ParseContext& context)
 {
-    // Parse fields
-    auto fields = (context.format == KeywordFormat::FREE)
-        ? LineParser::parseFree(line)
-        : LineParser::parseFixed(line, 16);  // LS-DYNA uses 16-char fields for nodes
+    // Parse fields - use auto detection for flexibility
+    auto fields = LineParser::parseAuto(line);
 
     if (fields.size() < 4) {
         return false;
@@ -275,10 +300,8 @@ bool ElementSolidParser::parseElementLine(
     core::Mesh& mesh,
     ParseContext& context)
 {
-    // Parse fields (8-char fields in LS-DYNA)
-    auto fields = (context.format == KeywordFormat::FREE)
-        ? LineParser::parseFree(line)
-        : LineParser::parseFixed(line, 8);
+    // Parse fields - use auto detection for flexibility
+    auto fields = LineParser::parseAuto(line);
 
     if (fields.size() < 2) {
         return false;
@@ -371,9 +394,8 @@ bool ElementShellParser::parseElementLine(
     core::Mesh& mesh,
     ParseContext& context)
 {
-    auto fields = (context.format == KeywordFormat::FREE)
-        ? LineParser::parseFree(line)
-        : LineParser::parseFixed(line, 8);
+    // Parse fields - use auto detection for flexibility
+    auto fields = LineParser::parseAuto(line);
 
     if (fields.size() < 2) {
         return false;
@@ -453,9 +475,8 @@ bool ElementBeamParser::parseElementLine(
     core::Mesh& mesh,
     ParseContext& context)
 {
-    auto fields = (context.format == KeywordFormat::FREE)
-        ? LineParser::parseFree(line)
-        : LineParser::parseFixed(line, 8);
+    // Parse fields - use auto detection for flexibility
+    auto fields = LineParser::parseAuto(line);
 
     if (fields.size() < 4) {
         return false;

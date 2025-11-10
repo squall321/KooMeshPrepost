@@ -131,6 +131,7 @@ protected:
 
     void createEmptyFile(const std::string& filename) {
         std::ofstream file(filename);
+        file.flush();
         file.close();
     }
 };
@@ -368,17 +369,33 @@ TEST_F(LSDynaFileReaderTest, ProgressTracking) {
 }
 
 TEST_F(LSDynaFileReaderTest, IsReadingState) {
-    createSimpleTestFile("test_simple.k");
+    // Create a larger file to ensure reading takes some time
+    std::ofstream file("test_reading_state.k");
+    file << "*KEYWORD\n";
+    file << "*NODE\n";
+    for (int i = 1; i <= 1000; ++i) {
+        file << i << " " << i*0.1 << " " << i*0.2 << " " << i*0.3 << "\n";
+    }
+    file << "*ELEMENT_SOLID\n";
+    for (int i = 1; i <= 100; ++i) {
+        int base = (i-1) * 8 + 1;
+        file << i << " 1 " << base << " " << (base+1) << " " << (base+2) << " " << (base+3)
+             << " " << (base+4) << " " << (base+5) << " " << (base+6) << " " << (base+7) << "\n";
+    }
+    file << "*END\n";
+    file.close();
 
     EXPECT_FALSE(reader.isReading());
 
     Mesh mesh;
     ReadOptions options;
+    options.validateOnRead = false;  // Skip validation for speed
 
     std::thread readerThread([&]() {
-        reader.read("test_simple.k", mesh, options);
+        reader.read("test_reading_state.k", mesh, options);
     });
 
+    // Wait a bit for thread to start reading
     std::this_thread::sleep_for(std::chrono::milliseconds(5));
     EXPECT_TRUE(reader.isReading());
 
@@ -447,6 +464,11 @@ TEST_F(LSDynaFileReaderTest, NonExistentFile) {
 
 TEST_F(LSDynaFileReaderTest, EmptyFile) {
     createEmptyFile("test_empty.k");
+
+    // Verify file was created
+    std::ifstream check("test_empty.k");
+    ASSERT_TRUE(check.good()) << "Failed to create empty test file";
+    check.close();
 
     Mesh mesh;
     ReadOptions options;
